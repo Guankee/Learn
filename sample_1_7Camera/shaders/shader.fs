@@ -8,5 +8,6 @@ uniform sampler2D textureSmile;
 uniform float ratio;
 void main()
 {
-   FragColor = mix(texture(texture0, TexCoord), texture(textureSmile, vec2(1-TexCoord.x,TexCoord.y)), ratio); 
+   FragColor = mix(texture(texture0, TexCoord), texture(textureSmile, 
+   vec2(1-TexCoord.x,TexCoord.y)), ratio); 
 }
