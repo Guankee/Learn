@@ -140,7 +140,7 @@ private:
             aiFace face = mesh->mFaces[i];
             // retrieve all indices of the face and store them in the indices vector
             //glDrawElements(GL_TRIANGLES, 150, GL_UNSIGNED_INT, indices);
-            //这个函数就是跟你你输入的3个3个的取值进行渲染
+            //这个函数就是跟你你输入的3个3个的取值进行渲染,所以索引是一个vector
             for(unsigned int j = 0; j < face.mNumIndices; j++)
                 indices.push_back(face.mIndices[j]);        
         }
