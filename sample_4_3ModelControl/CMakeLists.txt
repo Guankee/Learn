@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 get_filename_component(SOURCE_DIR_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 # project(${NAME})
 # CMAKE_CURRENT_SOURCE_DIR 当前处理的cmake
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin/release)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/debug)
@@ -57,6 +58,12 @@ add_executable(
     ${SOURCE_DIR_NAME}
     ${SOURCE_FILE}
 ) 
+add_custom_command(
+  PRE_BUILD
+  TARGET ${SOURCE_DIR_NAME} # 这里是需要提前执行的 target
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/bin/release
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/bin/debug
+)
 
 # if debug 这种命令不行
 add_custom_command(TARGET ${SOURCE_DIR_NAME} POST_BUILD
@@ -80,9 +87,9 @@ add_custom_command(TARGET  ${SOURCE_DIR_NAME}  POST_BUILD
 
 target_link_libraries(
     ${SOURCE_DIR_NAME}
-    ${Libs}
     $<$<CONFIG:Debug>:${Libs_Debug}>
     $<$<CONFIG:Release>:${Libs_Release}>
 )
 
 # message("ASSIMP_LIBRARIES--" ${ASSIMP_LIBRARIES})
+
