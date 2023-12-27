@@ -79,6 +79,10 @@
         "xlocmes": "cpp",
         "xlocmon": "cpp",
         "xloctime": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "qapplication": "cpp",
+        "qopenglfunctions_3_3_core": "cpp",
+        "qopenglwidget": "cpp",
+        "qopenglshaderprogram": "cpp"
     },
 }
