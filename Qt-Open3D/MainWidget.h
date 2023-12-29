@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include "ui_GL3D.h"
+#include "GLWidget.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class GL3D; };
 QT_END_NAMESPACE
@@ -17,6 +19,7 @@ public:
 
 private:
     Ui::GL3D *ui;
+    GLWidget*widget;
 };
 
 #endif // MAINWINDOW_H

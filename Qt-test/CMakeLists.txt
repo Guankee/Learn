@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(Qt-3d)
+project(Qt-test)
 
 set( CMAKE_AUTOMOC ON )
 # set( CMAKE_AUTORCC ON )
@@ -8,7 +8,7 @@ set( CMAKE_AUTOMOC ON )
 # https://cmake.org/cmake/help/v3.0/policy/CMP0071.html
 # 设置 CMP0071 政策为 NEW 是确保 Windows 系统上的 Qt 项目在 CMake 3.10 及之后的版本中正常运行的必要步骤
 cmake_policy(SET CMP0071 NEW)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin/release)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/debug)
 
@@ -21,10 +21,9 @@ find_package( Qt5
   OpenGL
 )
 # 添加 Open3D 的安装目录到 CMAKE_MODULE_PATH
-list( APPEND CMAKE_MODULE_PATH "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/" )
-include(Open3DConfig)
-
-include_directories(${Open3D_INCLUDE_DIRS})
+# list( APPEND CMAKE_MODULE_PATH "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/" )
+# include(Open3DConfig)
+# include_directories(${Open3D_INCLUDE_DIRS})
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/ui)
@@ -44,5 +43,5 @@ qt5_wrap_ui( generated_ui_list ${ui_list} )
 add_executable(${PROJECT_NAME} ${header_list} 
 ${source_list} ${generated_ui_list} ${generated_qrc_list})
 
-target_link_libraries(${PROJECT_NAME} ${Open3D_LIBRARIES} Qt5::OpenGL Qt5::Core
+target_link_libraries(${PROJECT_NAME}  Qt5::OpenGL Qt5::Core
 Qt5::Gui Qt5::Widgets  )
