@@ -95,6 +95,7 @@
       "random": "cpp",
       "unordered_set": "cpp",
       "variant": "cpp",
-      "qopenglversionfunctions": "cpp"
+      "qopenglversionfunctions": "cpp",
+      "valarray": "cpp"
     },
 }

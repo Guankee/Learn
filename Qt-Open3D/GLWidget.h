@@ -102,6 +102,6 @@ class GLWidget : public QOpenGLWidget, QOpenGLFunctions_3_3_Core {
   open3d::visualization::gl_util::GLMatrix4f model_matrix_;
   open3d::visualization::gl_util::GLMatrix4f MVP_matrix_;
 
-   std::vector<Eigen::Vector3f> points_;
+  std::vector<Eigen::Vector3f> points_;
   std::vector<Eigen::Vector2f> uvs_;
 };

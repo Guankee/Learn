@@ -26,7 +26,8 @@ file( GLOB header_list ${CMAKE_CURRENT_SOURCE_DIR}/*.h  )
 file( GLOB source_list ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp )
 
 
-add_executable(${PROJECT_NAME} ${header_list} 
-${source_list} )
+# add_executable(vtk1 main.cpp)
+# target_link_libraries(vtk1    ${VTK_LIBRARIES} ${Open3D_LIBRARIES})
 
-target_link_libraries(${PROJECT_NAME}   ${VTK_LIBRARIES} ${Open3D_LIBRARIES})
+add_executable(3d2vtk 3D2vtk.cpp)
+target_link_libraries(3d2vtk  ${VTK_LIBRARIES} ${Open3D_LIBRARIES})
