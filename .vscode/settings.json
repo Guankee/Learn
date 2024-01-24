@@ -96,6 +96,7 @@
       "unordered_set": "cpp",
       "variant": "cpp",
       "qopenglversionfunctions": "cpp",
-      "valarray": "cpp"
+      "valarray": "cpp",
+      "*.txx": "cpp"
     },
 }
