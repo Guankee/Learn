@@ -6,9 +6,13 @@ VTK_MODULE_INIT(vtkRenderingFreeType)
 VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkActor.h>
 #include <vtkCellArray.h>
+#include <vtkDoubleArray.h>
 #include <vtkImageActor.h>
 #include <vtkImageData.h>
 #include <vtkInformation.h>
+#include <vtkNamedColors.h>
+#include <vtkOpenGLActor.h>
+#include <vtkOpenGLPolyDataMapper.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
@@ -18,11 +22,9 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkTriangle.h>
 #include <vtkTexture.h>
-#include<vtkOpenGLActor.h>
-#include<vtkOpenGLPolyDataMapper.h>
-#include<vtkDoubleArray.h>
+#include <vtkTriangle.h>
+
 #include <iostream>
 int main() {
   std::string file_path = "D:\\text2\\texture.obj";
@@ -31,9 +33,8 @@ int main() {
       std::make_shared<open3d::geometry::TriangleMesh>();
   open3d::io::ReadTriangleMeshOptions read;
   open3d::io::ReadTriangleMeshFromOBJ(file_path, *mesh, read);
-  // open3d::visualization::DrawGeometries({mesh}, "Registration result", 1028,
-  // 720,
-  //                                       50, 50, false, false, true);
+  open3d::visualization::DrawGeometries({mesh}, "Registration result", 1028,
+                                        720, 50, 50, false, false, true);
   int num_materials = (int)mesh->textures_.size();
   //  std::cout<<num_materials<<std::endl;
   std::vector<std::vector<Eigen::Vector3d>> points;
@@ -57,14 +58,10 @@ int main() {
     }
   }
 
-  // std::cout << points.size() << std::endl;
-  // std::cout << uvs.size() << std::endl;
-  // for (int i = 0; i < num_materials; ++i) {
-  //   std::cout << points[i].size() << std::endl;
-  //   std::cout << uvs[i].size() << std::endl;
-  // }
+  vtkNew<vtkNamedColors> colors;
+
   //   vtkRenderer* renderer = vtkRenderer::New();
-  //  vtkRenderWindow* renderWindow = vtkRenderWindow::New();
+   vtkRenderWindow* renderWindowImage = vtkRenderWindow::New();
   vtkSmartPointer<vtkPolyDataMapper> mapper =
       vtkSmartPointer<vtkPolyDataMapper>::New();
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -87,10 +84,19 @@ int main() {
     // vtkImageActor* actor = vtkImageActor::New();
     // actor->SetInputData(vtkImg_data_);
     // renderer->AddActor(actor);
-    // renderWindow->AddRenderer(renderer);
-    // renderWindow->Render();
+    // renderWindowImage->AddRenderer(renderer);
+    // renderWindowImage->Render();
+    // // 创建交互器
+    // vtkSmartPointer<vtkRenderWindowInteractor> interactor =
+    //     vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    // interactor->SetRenderWindow(renderWindowImage);
+
+    // // 渲染并启动窗口事件循环
+    // renderWindowImage->Render();
+    // interactor->Start();
+
     vtkNew<vtkDoubleArray> textureCoordinates;
-   textureCoordinates->SetNumberOfComponents(2);
+    textureCoordinates->SetNumberOfComponents(2);
     textureCoordinates->SetName("TextureCoordinates");
 
     vtkSmartPointer<vtkPoints> mesh_point = vtkSmartPointer<vtkPoints>::New();
@@ -98,9 +104,8 @@ int main() {
       mesh_point->InsertNextPoint(points[i][j].x(), points[i][j].y(),
                                   points[i][j].z());
 
-       double uv[2]={uvs[i][j].x(),uvs[i][j].y()};
-       textureCoordinates->InsertNextTuple(uv); 
-
+      double uv[2] = {uvs[i][j].x(), uvs[i][j].y()};
+      textureCoordinates->InsertNextTuple(uv);
     }
     std::cout << "points  " << points[i].size() << std::endl;
     std::cout << "mesh_point " << mesh_point->GetNumberOfPoints() << std::endl;
@@ -114,39 +119,41 @@ int main() {
       cells->InsertNextCell(triangle);
     }
 
- 
-
     std::cout << "triangle: " << cells->GetNumberOfCells() << std::endl;
     vtkSmartPointer<vtkPolyData> polygonPolyData =
         vtkSmartPointer<vtkPolyData>::New();
     polygonPolyData->SetPoints(mesh_point);
     polygonPolyData->SetPolys(cells);
-   polygonPolyData->GetPointData()->SetTCoords(textureCoordinates);
+    polygonPolyData->GetPointData()->SetTCoords(textureCoordinates);
 
-
-    	vtkSmartPointer< vtkTexture > texture = 
-		vtkSmartPointer< vtkTexture >::New();
+    vtkSmartPointer<vtkTexture> texture = vtkSmartPointer<vtkTexture>::New();
     // vtkImg_data_->Get
-	 texture->SetInputData( vtkImg_data_);
-	 texture->InterpolateOn();
-
-
-    vtkSmartPointer<vtkPolyDataMapper> mapper =
-        vtkSmartPointer<vtkPolyDataMapper>::New();
+    texture->SetInputData(vtkImg_data_);
+    texture->InterpolateOn();
+    texture->SetMipmap(true);
+    texture->SetQualityTo32Bit();
+    // texture->Update();
+    vtkSmartPointer<vtkOpenGLPolyDataMapper> mapper =
+        vtkSmartPointer<vtkOpenGLPolyDataMapper>::New();
     mapper->SetInputData(polygonPolyData);
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+    // mapper->SetInterpolationToPhong();
+    mapper->SeamlessUOn();
+
+
+    vtkSmartPointer<vtkOpenGLActor> actor = vtkSmartPointer<vtkOpenGLActor>::New();
     actor->SetMapper(mapper);
     actor->SetTexture(texture);
-
+    actor->GetProperty()->LightingOff();
+  
+    //actor->GetProperty()->SetColor(colors->GetColor3d("MistyRose").GetData());
     renderer->AddActor(actor);
   }
 
-   
-  renderer->SetBackground(1.0, 1.0, 1.0); 
+  renderer->SetBackground(1.0, 1.0, 1.0);
   vtkSmartPointer<vtkRenderWindow> renderWindow =
       vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->AddRenderer(renderer);
-  renderWindow->SetSize(800, 600 );
+  renderWindow->SetSize(800, 600);
   renderWindow->Render();
   renderWindow->SetWindowName("PolyDataNew");
 
@@ -159,3 +166,60 @@ int main() {
 
   return 0;
 }
+// #include <vtkAutoInit.h>
+// VTK_MODULE_INIT(vtkRenderingOpenGL2)
+// VTK_MODULE_INIT(vtkRenderingFreeType)
+// VTK_MODULE_INIT(vtkInteractionStyle)
+
+// #include <vtkOBJReader.h>
+// #include <vtkMaterialLibrary.h>
+// #include <vtkPolyDataMapper.h>
+// #include <vtkActor.h>
+// #include <vtkRenderer.h>
+// #include <vtkRenderWindow.h>
+// #include <vtkRenderWindowInteractor.h>
+
+// int main() {
+//   // 创建 OBJ 读取器
+//   vtkSmartPointer<vtkOBJReader> reader =
+//       vtkSmartPointer<vtkOBJReader>::New();
+//   reader->SetFileName("D:\\text2\\texture.obj");
+//   reader->Update();
+
+//   // 创建材质库
+//   vtkSmartPointer<vtkMaterialLibrary> materialLibrary =
+//       vtkSmartPointer<vtkMaterialLibrary>::New();
+//   materialLibrary->AddMaterialFile("D:\\text2\\texture.mtl");
+
+//   // 获取材质
+//   vtkSmartPointer<vtkPolyDataMapper> mapper =
+//       vtkSmartPointer<vtkPolyDataMapper>::New();
+//   mapper->SetInputConnection(reader->GetOutputPort());
+//   mapper->SetMaterialLibrary(materialLibrary);
+
+//   // 创建演员
+//   vtkSmartPointer<vtkActor> actor =
+//       vtkSmartPointer<vtkActor>::New();
+//   actor->SetMapper(mapper);
+
+//   // 创建渲染器
+//   vtkSmartPointer<vtkRenderer> renderer =
+//       vtkSmartPointer<vtkRenderer>::New();
+//   renderer->AddActor(actor);
+
+//   // 创建渲染窗口
+//   vtkSmartPointer<vtkRenderWindow> renderWindow =
+//       vtkSmartPointer<vtkRenderWindow>::New();
+//   renderWindow->AddRenderer(renderer);
+
+//   // 创建渲染窗口交互器
+//   vtkSmartPointer<vtkRenderWindowInteractor> interactor =
+//       vtkSmartPointer<vtkRenderWindowInteractor>::New();
+//   interactor->SetRenderWindow(renderWindow);
+
+//   // 显示渲染窗口
+//   renderWindow->Render();
+//   interactor->Start();
+
+//   return 0;
+// }
