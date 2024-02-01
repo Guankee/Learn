@@ -9,11 +9,16 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/debug)
 
 
 # 添加 Open3D 的安装目录到 CMAKE_MODULE_PATH
-list( APPEND CMAKE_MODULE_PATH "D:/3D_Libs/VTK-9.1.0/install/lib/cmake/vtk-9.1/" )
-list( APPEND CMAKE_MODULE_PATH "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/" )
-set(Open3D_DIR "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/")
+# list( APPEND CMAKE_MODULE_PATH "D:/3D_Libs/VTK-9.1.0/install/lib/cmake/vtk-9.1/" )
+list( APPEND CMAKE_MODULE_PATH "E:/Downloads/PCL-1.14.0/3rdParty/vtk/lib/cmake/vtk-9.3/")
+
+# list( APPEND CMAKE_MODULE_PATH "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/" )
+# set(Open3D_DIR "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/")
+list( APPEND CMAKE_MODULE_PATH "E:/Downloads/Open3D-2/Open3D/CMake/" )
+set(Open3D_DIR "E:/Downloads/Open3D-2/Open3D/CMake/")
+set(VTK_DIR "E:/Downloads/PCL-1.14.0/3rdParty/vtk/lib/cmake/vtk-9.3/")
 # include(vtk-config)
-find_package(VTK REQUIRED)
+find_package(VTK REQUIRED )
 include_directories(${VTK_INCLUDE_DIRS})
 
 find_package(Open3D REQUIRED)
@@ -22,8 +27,8 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 
 
-file( GLOB header_list ${CMAKE_CURRENT_SOURCE_DIR}/*.h  )
-file( GLOB source_list ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp )
+# file( GLOB header_list ${CMAKE_CURRENT_SOURCE_DIR}/*.h  )
+# file( GLOB source_list ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp )
 
 
 # add_executable(vtk1 main.cpp)
@@ -31,3 +36,5 @@ file( GLOB source_list ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp )
 
 add_executable(3d2vtk 3D2vtk.cpp)
 target_link_libraries(3d2vtk  ${VTK_LIBRARIES} ${Open3D_LIBRARIES})
+add_executable(open3d open3d.cpp)
+target_link_libraries(open3d   ${Open3D_LIBRARIES})

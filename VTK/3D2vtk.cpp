@@ -24,16 +24,23 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkSmartPointer.h>
 #include <vtkTexture.h>
 #include <vtkTriangle.h>
-
+#include<vtkVersion.h>
+#include<vtkInteractorStyleImage.h>
 #include <iostream>
 int main() {
+
+ const char* gg = vtkVersion::GetVTKVersion();
+
+  // 输出 vtk 的版本号
+  std::cout << "vtk版本" <<gg<< std::endl;
+
   std::string file_path = "D:\\text2\\texture.obj";
 
   std::shared_ptr<open3d::geometry::TriangleMesh> mesh =
       std::make_shared<open3d::geometry::TriangleMesh>();
   open3d::io::ReadTriangleMeshOptions read;
   open3d::io::ReadTriangleMeshFromOBJ(file_path, *mesh, read);
-  open3d::visualization::DrawGeometries({mesh}, "Registration result", 1028,
+  open3d::visualization::DrawGeometries({mesh}, "OpenGL", 1028,
                                         720, 50, 50, false, false, true);
   int num_materials = (int)mesh->textures_.size();
   //  std::cout<<num_materials<<std::endl;
@@ -80,21 +87,25 @@ int main() {
     // auto it=mesh->textures_[i].PointerAs();
     for (int j = 0; j < mesh->textures_[i].data_.size(); ++j) {
       *ptr_vtk++ = mesh->textures_[i].data_[j];
-    }
-    // vtkImageActor* actor = vtkImageActor::New();
-    // actor->SetInputData(vtkImg_data_);
-    // renderer->AddActor(actor);
-    // renderWindowImage->AddRenderer(renderer);
-    // renderWindowImage->Render();
-    // // 创建交互器
-    // vtkSmartPointer<vtkRenderWindowInteractor> interactor =
-    //     vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    // interactor->SetRenderWindow(renderWindowImage);
 
-    // // 渲染并启动窗口事件循环
-    // renderWindowImage->Render();
-    // interactor->Start();
+     }
 
+
+//     vtkImageActor* actor = vtkImageActor::New();
+//     actor->SetInputData(vtkImg_data_);
+//     renderer->AddActor(actor);
+//     renderWindowImage->AddRenderer(renderer);
+//     renderWindowImage->Render();
+//     // 创建交互器
+//     vtkSmartPointer<vtkRenderWindowInteractor> interactor =
+//         vtkSmartPointer<vtkRenderWindowInteractor>::New();
+//             vtkSmartPointer<vtkInteractorStyleImage> Style =
+//         vtkSmartPointer<vtkInteractorStyleImage>::New();
+//     interactor->SetRenderWindow(renderWindowImage);
+// interactor->SetInteractorStyle(Style);
+//     // 渲染并启动窗口事件循环
+//     renderWindowImage->Render();
+//     interactor->Start();
     vtkNew<vtkDoubleArray> textureCoordinates;
     textureCoordinates->SetNumberOfComponents(2);
     textureCoordinates->SetName("TextureCoordinates");
@@ -109,6 +120,7 @@ int main() {
     }
     std::cout << "points  " << points[i].size() << std::endl;
     std::cout << "mesh_point " << mesh_point->GetNumberOfPoints() << std::endl;
+    std::cout << "uv " << textureCoordinates->GetNumberOfTuples()<< std::endl;
     vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
     for (int j = 0; j < points[i].size() / 3; j++) {
       vtkSmartPointer<vtkTriangle> triangle =
@@ -132,15 +144,15 @@ int main() {
     texture->InterpolateOn();
     texture->SetMipmap(true);
     texture->SetQualityTo32Bit();
-    // texture->Update();
-    vtkSmartPointer<vtkOpenGLPolyDataMapper> mapper =
-        vtkSmartPointer<vtkOpenGLPolyDataMapper>::New();
+    texture->Update();
+    vtkSmartPointer<vtkPolyDataMapper> mapper =
+        vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(polygonPolyData);
     // mapper->SetInterpolationToPhong();
-    mapper->SeamlessUOn();
+    //mapper->SeamlessUOn();
 
 
-    vtkSmartPointer<vtkOpenGLActor> actor = vtkSmartPointer<vtkOpenGLActor>::New();
+    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
     actor->SetTexture(texture);
     actor->GetProperty()->LightingOff();
@@ -155,7 +167,7 @@ int main() {
   renderWindow->AddRenderer(renderer);
   renderWindow->SetSize(800, 600);
   renderWindow->Render();
-  renderWindow->SetWindowName("PolyDataNew");
+  renderWindow->SetWindowName("VTK");
 
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
       vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -166,60 +178,3 @@ int main() {
 
   return 0;
 }
-// #include <vtkAutoInit.h>
-// VTK_MODULE_INIT(vtkRenderingOpenGL2)
-// VTK_MODULE_INIT(vtkRenderingFreeType)
-// VTK_MODULE_INIT(vtkInteractionStyle)
-
-// #include <vtkOBJReader.h>
-// #include <vtkMaterialLibrary.h>
-// #include <vtkPolyDataMapper.h>
-// #include <vtkActor.h>
-// #include <vtkRenderer.h>
-// #include <vtkRenderWindow.h>
-// #include <vtkRenderWindowInteractor.h>
-
-// int main() {
-//   // 创建 OBJ 读取器
-//   vtkSmartPointer<vtkOBJReader> reader =
-//       vtkSmartPointer<vtkOBJReader>::New();
-//   reader->SetFileName("D:\\text2\\texture.obj");
-//   reader->Update();
-
-//   // 创建材质库
-//   vtkSmartPointer<vtkMaterialLibrary> materialLibrary =
-//       vtkSmartPointer<vtkMaterialLibrary>::New();
-//   materialLibrary->AddMaterialFile("D:\\text2\\texture.mtl");
-
-//   // 获取材质
-//   vtkSmartPointer<vtkPolyDataMapper> mapper =
-//       vtkSmartPointer<vtkPolyDataMapper>::New();
-//   mapper->SetInputConnection(reader->GetOutputPort());
-//   mapper->SetMaterialLibrary(materialLibrary);
-
-//   // 创建演员
-//   vtkSmartPointer<vtkActor> actor =
-//       vtkSmartPointer<vtkActor>::New();
-//   actor->SetMapper(mapper);
-
-//   // 创建渲染器
-//   vtkSmartPointer<vtkRenderer> renderer =
-//       vtkSmartPointer<vtkRenderer>::New();
-//   renderer->AddActor(actor);
-
-//   // 创建渲染窗口
-//   vtkSmartPointer<vtkRenderWindow> renderWindow =
-//       vtkSmartPointer<vtkRenderWindow>::New();
-//   renderWindow->AddRenderer(renderer);
-
-//   // 创建渲染窗口交互器
-//   vtkSmartPointer<vtkRenderWindowInteractor> interactor =
-//       vtkSmartPointer<vtkRenderWindowInteractor>::New();
-//   interactor->SetRenderWindow(renderWindow);
-
-//   // 显示渲染窗口
-//   renderWindow->Render();
-//   interactor->Start();
-
-//   return 0;
-// }
