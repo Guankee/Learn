@@ -215,8 +215,8 @@ int main()
   
     // load textures
     // -------------
-    unsigned int cubeTexture = loadTexture("../../../pics/container.jpg");
-    unsigned int floorTexture = loadTexture("../../../pics/rock.jpg");
+    unsigned int cubeTexture = loadTexture("../../../../pics/container.jpg");
+    unsigned int floorTexture = loadTexture("../../../../pics/rock.jpg");
 
     // shader configuration
     // --------------------
@@ -227,12 +227,12 @@ int main()
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     vector<std::string> faces
     {
-        "../../../pics/skybox/right.jpg",
-        "../../../pics/skybox/left.jpg",
-        "../../../pics/skybox/top.jpg",
-        "../../../pics/skybox/bottom.jpg",
-        "../../../pics/skybox/front.jpg",
-        "../../../pics/skybox/back.jpg"
+        "../../../../pics/skybox/right.jpg",
+        "../../../../pics/skybox/left.jpg",
+        "../../../../pics/skybox/top.jpg",
+        "../../../../pics/skybox/bottom.jpg",
+        "../../../../pics/skybox/front.jpg",
+        "../../../../pics/skybox/back.jpg"
     };
     unsigned int cubemapTexture = loadCubemap(faces);
 

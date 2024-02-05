@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.10)
+project(OpenGL)
+
+# 注意代码中的位置
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_1_7Camera)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_1_7Camera-2)
+#  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_2_2Phong)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_2_2Phong-2)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_2_3Material)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_3_2ModelClass)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_4_2MousePicking)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_4_3ModelControl)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_4_4Stencil)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_4_8Skybox)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sample_4_11GeometryShader2)
