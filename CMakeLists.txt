@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 project(Learn)
 
 
@@ -6,4 +6,5 @@ project(Learn)
 # add_subdirectory(${CMAKE_SOURCE_DIR}/Qt-test)
  add_subdirectory(${CMAKE_SOURCE_DIR}/VTK)
  add_subdirectory(${CMAKE_SOURCE_DIR}/OpenGL)
+ add_subdirectory(${CMAKE_SOURCE_DIR}/Open3D)
 #  add_subdirectory(${CMAKE_SOURCE_DIR}/CUDA)
