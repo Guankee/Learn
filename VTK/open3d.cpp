@@ -11,9 +11,9 @@ int main(){
   open3d::visualization::DrawGeometries({mesh}, "OpenGL", 1028,
                                         720, 50, 50, false, false, true);
 
-  open3d::io::WriteTriangleMeshToOBJ("C:\\Users\\A015240\\Desktop\\tt\\2.obj",*mesh,
+  open3d::io::WriteTriangleMeshToOBJ("C:\\Users\\A015240\\Desktop\\tt\\小子.obj",*mesh,
   false,true,true,true,true,true);
-  std::string file_path2 = "C:\\Users\\A015240\\Desktop\\tt\\2.obj";
+  std::string file_path2 = "C:\\Users\\A015240\\Desktop\\tt\\小子.obj";
 
   std::shared_ptr<open3d::geometry::TriangleMesh> mesh2 =
       std::make_shared<open3d::geometry::TriangleMesh>();
