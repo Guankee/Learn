@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 project(Learn)
-
-
-# # add_subdirectory(${CMAKE_SOURCE_DIR}/Qt-Open3D)
+# list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+ add_subdirectory(${CMAKE_SOURCE_DIR}/Qt-Open3D)
 # add_subdirectory(${CMAKE_SOURCE_DIR}/Qt-test)
 #  add_subdirectory(${CMAKE_SOURCE_DIR}/VTK)
 #  add_subdirectory(${CMAKE_SOURCE_DIR}/OpenGL)
 #  add_subdirectory(${CMAKE_SOURCE_DIR}/Open3D)
 #  add_subdirectory(${CMAKE_SOURCE_DIR}/CUDA)
- add_subdirectory(${CMAKE_SOURCE_DIR}/ITK)
+#  add_subdirectory(${CMAKE_SOURCE_DIR}/ITK)
+#  add_subdirectory(${CMAKE_SOURCE_DIR}/CopyTask)

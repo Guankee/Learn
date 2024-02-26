@@ -21,8 +21,11 @@ find_package( Qt5
   OpenGL
 )
 # 添加 Open3D 的安装目录到 CMAKE_MODULE_PATH
-list( APPEND CMAKE_MODULE_PATH "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/" )
-include(Open3DConfig)
+# list( APPEND CMAKE_MODULE_PATH "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/" )
+# include(Open3DConfig)
+set(Open3D_DIR "D:/Learn/Libs/Open3D0.18-CUDA11.6/intall/CMake")
+find_package(Open3D REQUIRED)
+include_directories(${Open3D_INCLUDE_DIRS})
 
 include_directories(${Open3D_INCLUDE_DIRS})
 
@@ -31,6 +34,8 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/ui)
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/qrc)
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
+include_directories( ${CMAKE_SOURCE_DIR}/Libs/glew-2.1.0/include )
+set(GLEW_Lib ${CMAKE_SOURCE_DIR}/Libs/glew-2.1.0/lib/Release/x64/glew32.lib)
 
 file( GLOB header_list ${CMAKE_CURRENT_SOURCE_DIR}/*.h  )
 file( GLOB source_list ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp )
@@ -44,5 +49,5 @@ qt5_wrap_ui( generated_ui_list ${ui_list} )
 add_executable(${PROJECT_NAME} ${header_list} 
 ${source_list} ${generated_ui_list} ${generated_qrc_list})
 
-target_link_libraries(${PROJECT_NAME} ${Open3D_LIBRARIES} Qt5::OpenGL Qt5::Core
+target_link_libraries(${PROJECT_NAME} ${Open3D_LIBRARIES} ${GLEW_Lib} Qt5::OpenGL Qt5::Core
 Qt5::Gui Qt5::Widgets  )
