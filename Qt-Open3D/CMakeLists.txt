@@ -20,15 +20,9 @@ find_package( Qt5
   Gui
   OpenGL
 )
-# 添加 Open3D 的安装目录到 CMAKE_MODULE_PATH
-# list( APPEND CMAKE_MODULE_PATH "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/" )
-# include(Open3DConfig)
 set(Open3D_DIR "D:/Learn/Libs/Open3D0.18-CUDA11.6/intall/CMake")
 find_package(Open3D REQUIRED)
 include_directories(${Open3D_INCLUDE_DIRS})
-
-include_directories(${Open3D_INCLUDE_DIRS})
-
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/ui)
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/qrc)

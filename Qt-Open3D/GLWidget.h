@@ -1,8 +1,5 @@
 #pragma once
-#include<open3d/Open3D.h>
-// #include <open3d/visualization/utility/GLHelper.h>
-// #include <open3d/geometry/TriangleMesh.h>
-// #include <open3d/io/TriangleMeshIO.h>
+#include <open3d/Open3D.h>
 
 #include <iostream>
 #include <string>
@@ -11,12 +8,17 @@
 // class QOpenGLWidget;
 // #include <QOpenGLFunctions_3_3_Core>
 // #include <QOpenGLFunctions_4_5_Core>
-#include <QOpenGLShaderProgram>
+// #include <QOpenGLShaderProgram>
+
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QList>
+#include <QMessageBox>
+#include <QMimeData>
 #include <QOpenGLWidget>
+#include <QString>
+#include <QUrl>
 #include <QtWidgets/QMainWindow>
-
-// #include <open3d/open3d.h>
-
 
 const char *const TextureSimpleFragmentShader =
     "#version 330\n"
@@ -51,7 +53,10 @@ class GLWidget : public QOpenGLWidget {
  public:
   GLWidget(QWidget *parent = nullptr);
   ~GLWidget();
- 
- private:
+  void dragEnterEvent(QDragEnterEvent *event) override;
+  void dropEvent(QDropEvent *event) override;
+  bool ReadMeshOBJ(const QString &path);
 
+ private:
+  std::shared_ptr<open3d::geometry::TriangleMesh> obj_mesh_{nullptr};
 };
