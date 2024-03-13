@@ -28,9 +28,14 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/ui)
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/qrc)
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
-include_directories( ${CMAKE_SOURCE_DIR}/Libs/glew-2.1.0/include )
-set(GLEW_Lib ${CMAKE_SOURCE_DIR}/Libs/glew-2.1.0/lib/Release/x64/glew32.lib)
+# include_directories( ${CMAKE_SOURCE_DIR}/Libs/glew-2.1.0/include )
+# # set(GLEW_Lib ${CMAKE_SOURCE_DIR}/Libs/glew-2.1.0/lib/Release/x64/glew32.lib
+# #              ${CMAKE_SOURCE_DIR}/Libs/glew-2.1.0/lib/Release/x64/glew32s.lib)
+# set(GLEW_Lib ${CMAKE_SOURCE_DIR}/Libs/glew-2.1.0/lib/Release/x64/glew32s.lib)
 
+set(GLEW_DIR "D:/3Libs/glew-20190928/glew-2.2.0/install/lib/cmake/glew")
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
 file( GLOB header_list ${CMAKE_CURRENT_SOURCE_DIR}/*.h  )
 file( GLOB source_list ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp )
 file( GLOB ui_list ${CMAKE_CURRENT_SOURCE_DIR}/ui/*.ui )
@@ -43,5 +48,5 @@ qt5_wrap_ui( generated_ui_list ${ui_list} )
 add_executable(${PROJECT_NAME} ${header_list} 
 ${source_list} ${generated_ui_list} ${generated_qrc_list})
 
-target_link_libraries(${PROJECT_NAME} ${Open3D_LIBRARIES} ${GLEW_Lib} Qt5::OpenGL Qt5::Core
+target_link_libraries(${PROJECT_NAME} ${Open3D_LIBRARIES} GLEW::glew_s Qt5::OpenGL Qt5::Core
 Qt5::Gui Qt5::Widgets  )

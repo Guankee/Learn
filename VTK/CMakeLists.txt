@@ -8,13 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin/relea
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/debug)
 
 
-# 添加 Open3D 的安装目录到 CMAKE_MODULE_PATH
-# list( APPEND CMAKE_MODULE_PATH "D:/3D_Libs/VTK-9.1.0/install/lib/cmake/vtk-9.1/" )
-list( APPEND CMAKE_MODULE_PATH "E:/Downloads/PCL-1.14.0/3rdParty/vtk/lib/cmake/vtk-9.3/")
 
-# list( APPEND CMAKE_MODULE_PATH "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/" )
-# set(Open3D_DIR "E:/Medical_ae/trunk/Libs/Open3D-0.17.0-CUDA11.6/CMake/")
-list( APPEND CMAKE_MODULE_PATH "E:/Downloads/Open3D-2/Open3D/CMake/" )
 set(Open3D_DIR "E:/Downloads/Open3D-2/Open3D/CMake/")
 set(VTK_DIR "E:/Downloads/PCL-1.14.0/3rdParty/vtk/lib/cmake/vtk-9.3/")
 # include(vtk-config)
