@@ -8,9 +8,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin/relea
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/debug)
 
 
-
-set(Open3D_DIR "E:/Downloads/Open3D-2/Open3D/CMake/")
-set(VTK_DIR "E:/Downloads/PCL-1.14.0/3rdParty/vtk/lib/cmake/vtk-9.3/")
+set(Open3D_DIR "D:/3D_Libs/Open3D/intall/CMake")
+set(VTK_DIR "E:/Medical_ae/trunk/Libs/VTK-9.0.1/lib/cmake/vtk-9.0")
+#  set(VTK_DIR "D:/3D_Libs/VTK-9.1.0/install/lib/cmake/vtk-9.1")
 # include(vtk-config)
 find_package(VTK REQUIRED )
 include_directories(${VTK_INCLUDE_DIRS})
@@ -32,3 +32,5 @@ add_executable(3d2vtk 3D2vtk.cpp)
 target_link_libraries(3d2vtk  ${VTK_LIBRARIES} ${Open3D_LIBRARIES})
 add_executable(open3d open3d.cpp)
 target_link_libraries(open3d   ${Open3D_LIBRARIES})
+add_executable(pick vtkInteractorStyleRubberBandPick.cpp)
+target_link_libraries(pick   ${VTK_LIBRARIES})
