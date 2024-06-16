@@ -35,7 +35,7 @@ target_link_libraries(open3d   ${Open3D_LIBRARIES})
 add_executable(pick vtkInteractorStyleRubberBandPick.cpp)
 target_link_libraries(pick   ${VTK_LIBRARIES})
 
-# 添加vs属性页下调试中的环境选项可以添加环境变量test
+# 添加vs属性页下调试中的环境选项可以添加环境变量test1
 if(WIN32)
 set_target_properties(3d2vtk open3d pick PROPERTIES
 VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${VTK_DIR}/../../../bin;${Open3D_DIR}/../bin")
