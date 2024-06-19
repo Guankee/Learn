@@ -31,7 +31,7 @@ find_package( Qt5
 find_package(VTK REQUIRED )
 include_directories(${VTK_INCLUDE_DIRS})
 
-include_directories(${Open3D_INCLUDE_DIRS})
+
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/ui)
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/qrc)
@@ -46,10 +46,10 @@ file( GLOB qrc_list ${CMAKE_CURRENT_SOURCE_DIR}/qrc/*.qrc )
 # 调用uic进行编译 CMAKE_AUTOUIC
 qt5_wrap_ui( generated_ui_list ${ui_list} )
 # # 处理资源文件，生成 C++ 代码 CMAKE_AUTORCC
-# qt5_add_resources( generated_qrc_list ${qrc_list} )
+# qt5_add_resources( generated_qrc_list ${qrc_list} )${generated_qrc_list}
 
 add_executable(${PROJECT_NAME} ${header_list} 
-${source_list} ${generated_ui_list} ${generated_qrc_list})
+${source_list} ${generated_ui_list} )
 
 target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES} Qt5::OpenGL Qt5::Core
 Qt5::Gui Qt5::Widgets  )

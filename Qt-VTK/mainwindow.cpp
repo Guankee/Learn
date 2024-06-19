@@ -1,12 +1,16 @@
-﻿#include "mainwindow.h"
+#include "mainwindow.h"
+
+#include <vector>
 
 #include "ui_mainwindow.h"
-
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
   initVTK();
   setAcceptDrops(true);  // 启用拖放功能
+  connect(ui->planBtn, &QPushButton::toggled, this, &MainWindow::slotPlanStyle);
+  connect(ui->cleanBtn, &QPushButton::clicked, this,
+          &MainWindow::slotCleanPoly);
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -40,12 +44,8 @@ void MainWindow::initVTK() {
   // // lightBack->SetColor(195.0/255, 176.0/255, 145.0/255);
   // curVtkRenderer->AddLight(lightBack);
 
-  vtkSmartPointer<vtkInteractorStyleTrackballCamera> style =
-      vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
   qvtkInteractor->SetRenderWindow(curentVtkWindow);
-  qvtkInteractor->SetInteractorStyle(style);
-  // 用于启动事件处理循环，这在纯 VTK 应用程序中是必需的
-  //  qvtkInteractor->Start();
+  qvtkInteractor->SetInteractorStyle(cameraStyle);
   qvtkInteractor->Initialize();
 }
 void MainWindow::addPolyData(vtkSmartPointer<vtkPolyData> polydata,
@@ -57,7 +57,7 @@ void MainWindow::addPolyData(vtkSmartPointer<vtkPolyData> polydata,
     curPolyData = vtkSmartPointer<vtkPolyData>::New();
   }
   curPolyData = polydata;
-  double *center = polydata->GetCenter();
+  double* center = polydata->GetCenter();
   curVtkcamera->SetFocalPoint(center[0], center[1], center[2]);  // 设焦点
 
   auto mapper = vtkSmartPointer<
@@ -71,7 +71,7 @@ void MainWindow::addPolyData(vtkSmartPointer<vtkPolyData> polydata,
   curactor->GetProperty()->SetInterpolationToGouraud();
 
   curVtkRenderer->AddActor(curactor);
-    render();
+  render();
 }
 void MainWindow::cleanMeshData() {
   vtkSmartPointer<vtkActorCollection> actors = curVtkRenderer->GetActors();
@@ -81,7 +81,7 @@ void MainWindow::cleanMeshData() {
   }
   actors->RemoveAllItems();
 }
-void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
+void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
   if (event->mimeData()->hasUrls()) {
     QList<QUrl> urlList = event->mimeData()->urls();
     if (urlList.size() == 1 && urlList[0].toLocalFile().endsWith(".ply")) {
@@ -90,7 +90,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
   }
 }
 
-void MainWindow::dropEvent(QDropEvent *event) {
+void MainWindow::dropEvent(QDropEvent* event) {
   QList<QUrl> urlList = event->mimeData()->urls();
   if (urlList.size() == 1) {
     QString filePath = urlList[0].toLocalFile();
@@ -100,14 +100,35 @@ void MainWindow::dropEvent(QDropEvent *event) {
           vtkSmartPointer<vtkPLYReader>::New();
       reader->SetFileName(filePath.toStdString().c_str());
       reader->Update();
-      vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput();
+      polyData = reader->GetOutput();
       addPolyData(polyData);
-    
     }
   }
 }
 void MainWindow::render() {
-    if (curVtkRenderer) {
-        curVtkRenderer->GetRenderWindow()->Render();
-    }
+  if (curVtkRenderer) {
+    curVtkRenderer->GetRenderWindow()->Render();
+  }
+}
+
+void MainWindow::slotPlanStyle(bool state) {
+  if (state) {
+    planStyle->setPolyData(polyData);
+    planStyle->setRenderer(curVtkRenderer);
+    qvtkInteractor->SetRenderWindow(curentVtkWindow);
+    qvtkInteractor->SetInteractorStyle(planStyle);
+    qvtkInteractor->Initialize();
+
+  } else {
+    qvtkInteractor->SetRenderWindow(curentVtkWindow);
+    qvtkInteractor->SetInteractorStyle(cameraStyle);
+    qvtkInteractor->Initialize();
+  }
+}
+void MainWindow::slotCleanPoly() {
+  for (auto actor : planStyle->highlightedSquares) {
+    curVtkRenderer->RemoveActor(actor);
+  }
+  planStyle->highlightedSquares.clear();
+  curVtkRenderer->GetRenderWindow()->Render();
 }

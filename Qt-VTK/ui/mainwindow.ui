@@ -73,9 +73,12 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_3">
+              <widget class="QPushButton" name="planBtn">
                <property name="text">
-                <string>PushButton</string>
+                <string>规划</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -116,9 +119,9 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_4">
+              <widget class="QPushButton" name="cleanBtn">
                <property name="text">
-                <string>PushButton</string>
+                <string>clean</string>
                </property>
               </widget>
              </item>
