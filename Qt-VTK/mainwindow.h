@@ -6,6 +6,7 @@
 #include <QMimeData>
 #include <QPushButton>
 #include <QUrl>
+
 // VTK
 #include <vtkAutoInit.h>
 VTK_MODULE_INIT(vtkRenderingOpenGL2)

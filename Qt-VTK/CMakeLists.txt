@@ -12,7 +12,8 @@ set( CMAKE_AUTOMOC ON )
 
 
 set(Qt5_DIR "D:/Qt/Qt5.13.2/5.13.2/msvc2017_64/lib/cmake/Qt5")
-set(VTK_DIR "E:/Medical_ae/trunk/Libs/VTK-9.0.1/lib/cmake/vtk-9.0")
+#  set(VTK_DIR "D:/3D_Libs/VTK-9.1.0/install/lib/cmake/vtk-9.1")
+ set(VTK_DIR "E:/Medical_ae/trunk/Libs/VTK-9.0.1/lib/cmake/vtk-9.0")
 
 cmake_policy(SET CMP0071 NEW)
 set(CMAKE_CXX_STANDARD 17)
