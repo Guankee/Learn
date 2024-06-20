@@ -57,7 +57,7 @@ class MainWindow : public QMainWindow {
  public Q_SLOTS:
   void slotPlanStyle(bool state);
   void slotCleanPoly();
-
+  void slotEdgeOn(bool state);
  private:
   vtkSmartPointer<vtkRenderer> curVtkRenderer{nullptr};
   vtkSmartPointer<vtkRenderWindow> curentVtkWindow{nullptr};
