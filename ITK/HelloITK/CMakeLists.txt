@@ -16,5 +16,18 @@ set(ITK_DIR "D:/3Libs/InsightToolkit-5.3.0/install-share/lib/cmake/ITK-5.3")
 
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
-add_executable(HelloITK main.cpp)
-target_link_libraries(HelloITK ${ITK_LIBRARIES})
+
+# add_executable(HelloITK main.cpp)
+# target_link_libraries(HelloITK ${ITK_LIBRARIES})
+# 获取当前目录下的所有 .cpp 文件
+file(GLOB cpp_files "*.cpp" "*.cxx")
+
+# 遍历所有 .cpp 文件
+foreach(cpp_file ${cpp_files})
+    # 获取不带扩展名的文件名
+    get_filename_component(executable_name ${cpp_file} NAME_WE)
+    # 为每个 .cpp 文件创建可执行文件
+    add_executable(${executable_name} ${cpp_file})
+    # 链接 ITK 库
+    target_link_libraries(${executable_name} ${ITK_LIBRARIES})
+endforeach()

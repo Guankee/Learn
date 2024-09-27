@@ -16,300 +16,262 @@
  *
  *=========================================================================*/
 
+//  Software Guide : BeginCommandLineArgs
+//    INPUTS:  {FivePointsDilated.png}
+//    OUTPUTS: {DanielssonDistanceMapImageFilterOutput1.png}
+//    OUTPUTS: {DanielssonDistanceMapImageFilterOutput2.png}
+//    ARGUMENTS: {DanielssonDistanceMapImageFilterOutput3.mhd}
+//  Software Guide : EndCommandLineArgs
+
 // Software Guide : BeginLatex
 //
-// \index{Iterators!and image slices}
+// This example illustrates the use of the
+// \doxygen{DanielssonDistanceMapImageFilter}.  This filter generates a
+// distance map from the input image using the algorithm developed by
+// Danielsson \cite{Danielsson1980}. As secondary outputs, a Voronoi
+// partition of the input elements is produced, as well as a vector image
+// with the components of the distance vector to the closest point. The input
+// to the map is assumed to be a set of points on the input image. The label
+// of each group of pixels is assigned by the
+// \doxygen{ConnectedComponentImageFilter}.
 //
-// The \doxygen{ImageSliceIteratorWithIndex} class is an extension of
-// \doxygen{ImageLinearIteratorWithIndex} from iteration along lines to
-// iteration along both lines \emph{and planes} in an image.
-// A \emph{slice} is a 2D
-// plane spanned by two vectors pointing along orthogonal coordinate axes. The
-// slice orientation of the slice iterator is defined by specifying its two
-// spanning axes.
+// \index{itk::Danielsson\-Distance\-Map\-Image\-Filter!Instantiation}
+// \index{itk::Danielsson\-Distance\-Map\-Image\-Filter!Header}
 //
-// \begin{itemize}
-// \index{itk::Image\-Slice\-Iterator\-With\-Index!SetFirstDirection()}
-// \item \textbf{\code{SetFirstDirection()}}
-// Specifies the first coordinate axis
-// direction of the slice plane.
-//
-// \index{itk::Image\-Slice\-Iterator\-With\-Index!SetSecondDirection()}
-// \item \textbf{\code{SetSecondDirection()}}
-// Specifies the second coordinate axis
-// direction of the slice plane.
-// \end{itemize}
-//
-// Several new methods control movement from slice to slice.
-//
-// \begin{itemize}
-//
-// \index{itk::Image\-Slice\-Iterator\-With\-Index!NextSlice()}
-// \item \textbf{\code{NextSlice()}} Moves the iterator to the beginning pixel
-// location of the next slice in the image.  The origin of the next slice is
-// calculated by incrementing the current origin index along the fastest
-// increasing dimension of the image subspace which excludes the first and
-// second dimensions of the iterator.
-//
-// \index{itk::Image\-Slice\-Iterator\-With\-Index!PreviousSlice()}
-// \item \textbf{\code{PreviousSlice()}} Moves the iterator to the \emph{last
-// valid pixel location} in the previous slice.  The origin of the previous
-// slice is calculated by decrementing the current origin index along the
-// fastest increasing dimension of the image subspace which excludes the first
-// and second dimensions of the iterator.
-//
-// \index{itk::Image\-Slice\-Iterator\-With\-Index!IsAtReverseEndOfSlice()}
-// \item \textbf{\code{IsAtReverseEndOfSlice()}} Returns true if the iterator
-// points to \emph{one position before} the beginning pixel of the current
-// slice.
-//
-// \index{itk::Image\-Slice\-Iterator\-With\-Index!IsAtEndOfSlice()}
-// \item \textbf{\code{IsAtEndOfSlice()}} Returns true if the iterator points
-// to \emph{one position past} the last valid pixel of the current slice.
-//
-// \end{itemize}
-//
-// The slice iterator moves line by line using \code{NextLine()} and
-// \code{PreviousLine()}.  The line direction is parallel to the \emph{second}
-// coordinate axis direction of the slice plane (see also
-// Section~\ref{sec:itkImageLinearIteratorWithIndex}).
-//
-// \index{itk::Image\-Slice\-Iterator\-With\-Index!example of using|(}
-// The next code example calculates the maximum intensity projection along one
-// of the coordinate axes of an image volume.  The algorithm is
-// straightforward using ImageSliceIteratorWithIndex because we can coordinate
-// movement through a slice of the 3D input image with movement through the 2D
-// planar output.
-//
-// Here is how the algorithm works.  For each 2D slice of the input, iterate
-// through all the pixels line by line. Copy a pixel value to the
-// corresponding position in the 2D output image if it is larger than the
-// value already contained there.  When all slices have been processed, the
-// output image is the desired maximum intensity projection.
-//
-// We include a header for the const version of the slice iterator. For
-// writing values to the 2D projection image, we use the linear iterator from
-// the previous section.  The linear iterator is chosen because it can be set
-// to follow the same path in its underlying 2D image that the slice iterator
-// follows over each slice of the 3D image.
+// The first step required to use this filter is to include its header file.
 //
 // Software Guide : EndLatex
 
-#include "itkImage.h"
-#include "itkMath.h"
-
 // Software Guide : BeginCodeSnippet
-#include "itkImageSliceConstIteratorWithIndex.h"
-#include "itkImageLinearIteratorWithIndex.h"
+#include "itkDanielssonDistanceMapImageFilter.h"
 // Software Guide : EndCodeSnippet
+
+#include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
+#include "itkConnectedComponentImageFilter.h"
+#include "itkRescaleIntensityImageFilter.h"
+
 
 int
 main(int argc, char * argv[])
 {
-  //   Verify the number of parameters on the command line.
-  // if (argc < 4)
-  // {
-  //   std::cerr << "Missing parameters. " << std::endl;
-  //   std::cerr << "Usage: " << std::endl;
-  //   std::cerr << argv[0]
-  //             << " inputImageFile outputImageFile projectionDirection"
-  //             << std::endl;
-  //   return EXIT_FAILURE;
-  // }
-
-  // Software Guide : BeginLatex
-  //
-  // The pixel type is defined as \code{unsigned short}.  For this
-  // application, we need two image types, a 3D image for the input, and a 2D
-  // image for the intensity projection.
-  //
-  // Software Guide : EndLatex
-
-  // Software Guide : BeginCodeSnippet
-  using PixelType = unsigned short;
-  using ImageType2D = itk::Image<PixelType, 2>;
-  using ImageType3D = itk::Image<PixelType, 3>;
-  // Software Guide : EndCodeSnippet
-
-  // Software Guide : BeginLatex
-  //
-  //  A slice iterator type is defined to walk the input image.
-  //
-  // Software Guide : EndLatex
-
-  // Software Guide : BeginCodeSnippet
-  using LinearIteratorType = itk::ImageLinearIteratorWithIndex<ImageType2D>;
-  using SliceIteratorType =
-    itk::ImageSliceConstIteratorWithIndex<ImageType3D>;
-  // Software Guide : EndCodeSnippet
-
-  ImageType3D::ConstPointer inputImage;
-  try
+  if (argc < 5)
   {
-    inputImage = itk::ReadImage<ImageType3D>("E:\\Image\\1.dcm");
-  }
-  catch (const itk::ExceptionObject & err)
-  {
-    std::cerr << "ExceptionObject caught !" << std::endl;
-    std::cerr << err << std::endl;
+    std::cerr << "Usage: " << argv[0];
+    std::cerr << " inputImageFile outputDistanceMapImageFile ";
+    std::cerr << " outputVoronoiMapImageFile ";
+    std::cerr << " outputVectorMapImageFile ";
+    std::cerr << std::endl;
     return EXIT_FAILURE;
   }
 
-  // Software Guide : BeginLatex
+  //  Software Guide : BeginLatex
   //
-  // The projection direction is read from the command line. The projection
-  // image will be the size of the 2D plane orthogonal to the projection
-  // direction. Its spanning vectors are the two remaining coordinate axes in
-  // the volume. These axes are recorded in the \code{direction} array.
+  //  Then we must decide what pixel types to use for the input and output
+  //  images. Since the output will contain distances measured in pixels, the
+  //  pixel type should be able to represent at least the width of the image,
+  //  or said in $N$-dimensional terms, the maximum extension along all the
+  //  dimensions. The input, output (distance map), and voronoi partition
+  //  image types are now defined using their respective pixel type and
+  //  dimension.
   //
-  // Software Guide : EndLatex
+  //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  auto projectionDirection = static_cast<unsigned int>(std::stoi(argv[3]));
-
-  unsigned int i, j;
-  unsigned int direction[2];
-  for (i = 0, j = 0; i < 3; ++i)
-  {
-    if (i != projectionDirection)
-    {
-      direction[j] = i;
-      j++;
-    }
-  }
+  using InputPixelType = unsigned char;
+  using OutputPixelType = unsigned short;
+  using VoronoiPixelType = unsigned char;
+  using InputImageType = itk::Image<InputPixelType, 2>;
+  using OutputImageType = itk::Image<OutputPixelType, 2>;
+  using VoronoiImageType = itk::Image<VoronoiPixelType, 2>;
   // Software Guide : EndCodeSnippet
 
-  // Software Guide : BeginLatex
+
+  //  Software Guide : BeginLatex
   //
-  // The \code{direction} array is now used to define the projection image
-  // size based on the input image size.  The output image is created so that
-  // its common dimension(s) with the input image are the same size.  For
-  // example, if we project along the $x$ axis of the input, the size and
-  // origin of the $y$ axes of the input and output will match.  This makes
-  // the code slightly more complicated, but prevents a counter-intuitive
-  // rotation of the output.
+  //  The filter type can be instantiated using the input and output image
+  //  types defined above. A filter object is created with the \code{New()}
+  //  method.
   //
-  // Software Guide : EndLatex
+  //  \index{itk::Danielsson\-Distance\-Map\-Image\-Filter!instantiation}
+  //  \index{itk::Danielsson\-Distance\-Map\-Image\-Filter!New()}
+  //  \index{itk::Danielsson\-Distance\-Map\-Image\-Filter!Pointer}
+  //
+  //  Software Guide : EndLatex
+
+  using LabelerType =
+    itk::ConnectedComponentImageFilter<InputImageType, InputImageType>;
+  auto labeler = LabelerType::New();
 
   // Software Guide : BeginCodeSnippet
-  ImageType2D::RegionType            region;
-  ImageType2D::RegionType::SizeType  size;
-  ImageType2D::RegionType::IndexType index;
-
-  ImageType3D::RegionType requestedRegion = inputImage->GetRequestedRegion();
-
-  index[direction[0]] = requestedRegion.GetIndex()[direction[0]];
-  index[1 - direction[0]] = requestedRegion.GetIndex()[direction[1]];
-  size[direction[0]] = requestedRegion.GetSize()[direction[0]];
-  size[1 - direction[0]] = requestedRegion.GetSize()[direction[1]];
-
-  region.SetSize(size);
-  region.SetIndex(index);
-
-  auto outputImage = ImageType2D::New();
-
-  outputImage->SetRegions(region);
-  outputImage->Allocate();
+  using FilterType = itk::DanielssonDistanceMapImageFilter<InputImageType,
+                                                           OutputImageType,
+                                                           VoronoiImageType>;
+  auto filter = FilterType::New();
   // Software Guide : EndCodeSnippet
 
-  // Software Guide : BeginLatex
+  using RescalerType =
+    itk::RescaleIntensityImageFilter<OutputImageType, OutputImageType>;
+  auto scaler = RescalerType::New();
+
+  using VoronoiRescalerType =
+    itk::RescaleIntensityImageFilter<VoronoiImageType, VoronoiImageType>;
+  auto voronoiScaler = VoronoiRescalerType::New();
+
   //
-  // Next we create the necessary iterators.  The const slice iterator walks
-  // the 3D input image, and the non-const linear iterator walks the 2D output
-  // image. The iterators are initialized to walk the same linear path through
-  // a slice.  Remember that the \emph{second} direction of the slice iterator
-  // defines the direction that linear iteration walks within a slice.
+  // Reader and Writer types are instantiated.
   //
-  // Software Guide : EndLatex
+  using ReaderType = itk::ImageFileReader<InputImageType>;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
+  using VoronoiWriterType = itk::ImageFileWriter<VoronoiImageType>;
+
+  auto reader = ReaderType::New();
+  auto writer = WriterType::New();
+  auto voronoiWriter = VoronoiWriterType::New();
+
+  reader->SetFileName(argv[1]);
+  writer->SetFileName(argv[2]);
+  voronoiWriter->SetFileName(argv[3]);
+
+
+  //  Software Guide : BeginLatex
+  //
+  //  The input to the filter is taken from a reader and its output is passed
+  //  to a \doxygen{RescaleIntensityImageFilter} and then to a writer. The
+  //  scaler and writer are both templated over the image type, so we
+  //  instantiate a separate pipeline for the voronoi partition map starting
+  //  at the scaler.
+  //
+  //  \index{itk::Danielsson\-Distance\-Map\-Image\-Filter!SetInput()}
+  //  \index{itk::Danielsson\-Distance\-Map\-Image\-Filter!GetOutput()}
+  //
+  //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  SliceIteratorType  inputIt(inputImage, inputImage->GetRequestedRegion());
-  LinearIteratorType outputIt(outputImage, outputImage->GetRequestedRegion());
-
-  inputIt.SetFirstDirection(direction[1]);
-  inputIt.SetSecondDirection(direction[0]);
-
-  outputIt.SetDirection(1 - direction[0]);
+  labeler->SetInput(reader->GetOutput());
+  filter->SetInput(labeler->GetOutput());
+  scaler->SetInput(filter->GetOutput());
+  writer->SetInput(scaler->GetOutput());
   // Software Guide : EndCodeSnippet
 
-  // Software Guide: BeginLatex
+  //  Software Guide : BeginLatex
   //
-  // Now we are ready to compute the projection.  The first step is to
-  // initialize all of the projection values to their nonpositive minimum
-  // value.  The projection values are then updated row by row from the first
-  // slice of the input.  At the end of the first slice, the input iterator
-  // steps to the first row in the next slice, while the output iterator,
-  // whose underlying image consists of only one slice, rewinds to its first
-  // row.  The process repeats until the last slice of the input is processed.
+  //  The Voronoi map is obtained with the \code{GetVoronoiMap()} method. In
+  //  the lines below we connect this output to the intensity rescaler.
   //
-  // Software Guide : EndLatex
+  //  \index{itk::Danielsson\-Distance\-Map\-Image\-Filter!GetVoronoiMap()}
+  //
+  //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  outputIt.GoToBegin();
-  while (!outputIt.IsAtEnd())
-  {
-    while (!outputIt.IsAtEndOfLine())
-    {
-      outputIt.Set(itk::NumericTraits<unsigned short>::NonpositiveMin());
-      ++outputIt;
-    }
-    outputIt.NextLine();
-  }
-
-  inputIt.GoToBegin();
-  outputIt.GoToBegin();
-
-  while (!inputIt.IsAtEnd())
-  {
-    while (!inputIt.IsAtEndOfSlice())
-    {
-      while (!inputIt.IsAtEndOfLine())
-      {
-        outputIt.Set(std::max(outputIt.Get(), inputIt.Get()));
-        ++inputIt;
-        ++outputIt;
-      }
-      outputIt.NextLine();
-      inputIt.NextLine();
-    }
-    outputIt.GoToBegin();
-    inputIt.NextSlice();
-  }
+  voronoiScaler->SetInput(filter->GetVoronoiMap());
+  voronoiWriter->SetInput(voronoiScaler->GetOutput());
   // Software Guide : EndCodeSnippet
 
-  try
-  {
-    itk::WriteImage(outputImage, argv[2]);
-  }
-  catch (const itk::ExceptionObject & err)
-  {
-    std::cerr << "ExceptionObject caught !" << std::endl;
-    std::cerr << err << std::endl;
-    return EXIT_FAILURE;
-  }
 
-  // Software Guide : BeginLatex
-  //
-  // Running this example code on the 3D image
-  // \code{Examples/Data/BrainProtonDensity3Slices.mha} using the $z$-axis as
-  // the axis of projection gives the image shown in
-  // Figure~\ref{fig:ImageSliceIteratorWithIndexOutput}.
+  scaler->SetOutputMaximum(65535L);
+  scaler->SetOutputMinimum(0L);
+  voronoiScaler->SetOutputMaximum(255);
+  voronoiScaler->SetOutputMinimum(0);
+
+  //  Software Guide : BeginLatex
   //
   // \begin{figure}
-  // \centering
-  // \includegraphics[width=0.4\textwidth]{ImageSliceIteratorWithIndexOutput}
-  // \itkcaption[Maximum intensity projection using
-  // ImageSliceIteratorWithIndex]{The maximum intensity projection through
-  // three slices of a volume.}
-  // \protect\label{fig:ImageSliceIteratorWithIndexOutput}
+  // \center
+  // \includegraphics[width=0.32\textwidth]{FivePointsDilated}
+  // \includegraphics[width=0.32\textwidth]{DanielssonDistanceMapImageFilterOutput1}
+  // \includegraphics[width=0.32\textwidth]{DanielssonDistanceMapImageFilterOutput2}
+  // \itkcaption[DanielssonDistanceMapImageFilter
+  // output]{DanielssonDistanceMapImageFilter output. Set of pixels, distance
+  // map and Voronoi partition.}
+  // \label{fig:DanielssonDistanceMapImageFilterInputOutput}
   // \end{figure}
   //
+  //  Figure \ref{fig:DanielssonDistanceMapImageFilterInputOutput} illustrates
+  //  the effect of this filter on a binary image with a set of points. The
+  //  input image is shown at the left, and the distance map at the center and
+  //  the Voronoi partition at the right. This filter computes distance maps
+  //  in N-dimensions and is therefore capable of producing $N$-dimensional
+  //  Voronoi partitions.
   //
-  // \index{itk::Image\-Slice\-Iterator\-With\-Index!example of using|)}
+  //  \index{Voronoi partitions}
+  //  \index{Voronoi partitions!itk::Danielsson\-Distance\-Map\-Image\-Filter}
   //
-  // Software Guide : EndLatex
+  //  Software Guide : EndLatex
+
+  writer->Update();
+  voronoiWriter->Update();
+
+  //  Software Guide : BeginLatex
+  //
+  //  The distance filter also produces an image of \doxygen{Offset} pixels
+  //  representing the vectorial distance to the closest object in the scene.
+  //  The type of this output image is defined by the VectorImageType
+  //  trait of the filter type.
+  //
+  //  Software Guide : EndLatex
+
+  // Software Guide : BeginCodeSnippet
+  using OffsetImageType = FilterType::VectorImageType;
+  // Software Guide : EndCodeSnippet
+
+
+  //  Software Guide : BeginLatex
+  //
+  //  We can use this type for instantiating an \doxygen{ImageFileWriter} type
+  //  and creating an object of this class in the following lines.
+  //
+  //  Software Guide : EndLatex
+
+  // Software Guide : BeginCodeSnippet
+  using WriterOffsetType = itk::ImageFileWriter<OffsetImageType>;
+  auto offsetWriter = WriterOffsetType::New();
+  // Software Guide : EndCodeSnippet
+
+
+  //  Software Guide : BeginLatex
+  //
+  //  The output of the distance filter can be connected as input to the
+  //  writer.
+  //
+  //  Software Guide : EndLatex
+
+  // Software Guide : BeginCodeSnippet
+  offsetWriter->SetInput(filter->GetVectorDistanceMap());
+  // Software Guide : EndCodeSnippet
+
+
+  offsetWriter->SetFileName(argv[4]);
+
+
+  //  Software Guide : BeginLatex
+  //
+  //  Execution of the writer is triggered by the invocation of the
+  //  \code{Update()} method. Since this method can potentially throw
+  //  exceptions it must be placed in a \code{try/catch} block.
+  //
+  //  Software Guide : EndLatex
+
+  // Software Guide : BeginCodeSnippet
+  try
+  {
+    offsetWriter->Update();
+  }
+  catch (const itk::ExceptionObject & exp)
+  {
+    std::cerr << "Exception caught !" << std::endl;
+    std::cerr << exp << std::endl;
+  }
+  // Software Guide : EndCodeSnippet
+
+
+  //  Software Guide : BeginLatex
+  //
+  //  Note that only the \doxygen{MetaImageIO} class supports reading and
+  //  writing images of pixel type \doxygen{Offset}.
+  //
+  //  Software Guide : EndLatex
 
   return EXIT_SUCCESS;
 }
