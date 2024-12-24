@@ -12,10 +12,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/../bin/debu
 #  list( APPEND CMAKE_MODULE_PATH "D:/3Libs/InsightToolkit-5.3.0/install-share/lib/cmake/ITK-5.3" )
 set(ITK_DIR "D:/3Libs/InsightToolkit-5.3.0/install-share/lib/cmake/ITK-5.3")
 
-# include_directories(${ITK_INCLUDE_DIRS})
+
 
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
+# include_directories(${ITK_INCLUDE_DIRS})
+#  include_directories(${ITK_USE_FILE})
+ include_directories(${ITK_INCLUDE_DIRS})
+message("555"${ITK_INCLUDE_DIRS})
 
 # add_executable(HelloITK main.cpp)
 # target_link_libraries(HelloITK ${ITK_LIBRARIES})
