@@ -14,6 +14,7 @@ set( CMAKE_AUTOMOC ON )
 set(Qt5_DIR "D:/Qt/Qt5.13.2/5.13.2/msvc2017_64/lib/cmake/Qt5")
 #  set(VTK_DIR "D:/3D_Libs/VTK-9.1.0/install/lib/cmake/vtk-9.1")
  set(VTK_DIR "E:/Medical_ae/trunk/Libs/VTK-9.0.1/lib/cmake/vtk-9.0")
+ set(Open3D_DIR "D:/Learn/Libs/Open3D0.18-CUDA11.6/intall/CMake")
 
 cmake_policy(SET CMP0071 NEW)
 set(CMAKE_CXX_STANDARD 17)
@@ -32,6 +33,8 @@ find_package( Qt5
 find_package(VTK REQUIRED )
 include_directories(${VTK_INCLUDE_DIRS})
 
+find_package(Open3D REQUIRED)
+include_directories(${Open3D_INCLUDE_DIRS})
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/ui)
@@ -52,7 +55,8 @@ qt5_wrap_ui( generated_ui_list ${ui_list} )
 add_executable(${PROJECT_NAME} ${header_list} 
 ${source_list} ${generated_ui_list} )
 
-target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES} Qt5::OpenGL Qt5::Core
+target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES}  ${Open3D_LIBRARIES} 
+Qt5::OpenGL Qt5::Core
 Qt5::Gui Qt5::Widgets  )
 # 实验验证 只有在vs中启动 才可以使用这个宏
 set_target_properties(${PROJECT_NAME} PROPERTIES

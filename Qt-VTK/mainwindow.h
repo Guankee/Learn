@@ -6,6 +6,8 @@
 #include <QMimeData>
 #include <QPushButton>
 #include <QUrl>
+// open3d
+#include <open3d/Open3D.h>
 
 // VTK
 #include <vtkAutoInit.h>
@@ -18,19 +20,26 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkActor.h>
 #include <vtkActorCollection.h>
 #include <vtkCamera.h>
+#include <vtkDoubleArray.h>
+#include <vtkImageData.h>
+#include <vtkInformation.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkLight.h>
 #include <vtkPLYReader.h>
+#include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
+#include <vtkTexture.h>
+
 // stl
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "PlanAreaInteractorStyle.h"
 
@@ -51,7 +60,14 @@ class MainWindow : public QMainWindow {
   void dropEvent(QDropEvent *event) override;
 
   void initVTK();
+  void loadData();
   void addPolyData(vtkSmartPointer<vtkPolyData> polydata, bool append = false);
+  void addTextureMesh(vtkSmartPointer<vtkActor> actor,
+                      std::shared_ptr<open3d::geometry::TriangleMesh> mesh,
+                      bool append = false);
+  vtkSmartPointer<vtkActor> textureMeshO3d2Vtk(
+      std::shared_ptr<open3d::geometry::TriangleMesh> mesh,
+      const Eigen::Matrix4d &transMatrix);
   void cleanMeshData();
   void render();
  public Q_SLOTS:
@@ -80,4 +96,3 @@ class MainWindow : public QMainWindow {
 };
 
 #endif  // MAINWINDOW_H
-   
