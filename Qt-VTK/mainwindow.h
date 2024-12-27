@@ -34,7 +34,12 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTexture.h>
-
+#include <vtkOrientationMarkerWidget.h>
+#include <vtkAxesActor.h>
+#include <vtkPropAssembly.h>
+#include <vtkAnnotatedCubeActor.h>
+#include <vtkTextProperty.h>
+#include <vtkCaptionActor2D.h>
 // stl
 #include <iostream>
 #include <string>
@@ -68,6 +73,7 @@ class MainWindow : public QMainWindow {
   vtkSmartPointer<vtkActor> textureMeshO3d2Vtk(
       std::shared_ptr<open3d::geometry::TriangleMesh> mesh,
       const Eigen::Matrix4d &transMatrix);
+  void create3DMarkWidget();
   void cleanMeshData();
   void render();
  public Q_SLOTS:
@@ -84,12 +90,15 @@ class MainWindow : public QMainWindow {
   vtkSmartPointer<vtkLight> lightBack{nullptr};
   // std::vector<vtkPolyData*>polys;
   vtkSmartPointer<vtkPolyData> curPolyData{nullptr};
-  vtkSmartPointer<vtkActor> curactor = vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> curActor = vtkSmartPointer<vtkActor>::New();
   vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
   vtkSmartPointer<PlanAreaInteractorStyle> planStyle =
       vtkSmartPointer<PlanAreaInteractorStyle>::New();
   vtkSmartPointer<vtkInteractorStyleTrackballCamera> cameraStyle =
       vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+
+	vtkSmartPointer<vtkOrientationMarkerWidget> orientationMarkerWidget = nullptr;
+	vtkSmartPointer<vtkAxesActor> axesActor = nullptr;
 
  private:
   Ui::MainWindow *ui;

@@ -50,16 +50,15 @@ void MainWindow::initVTK() {
   qvtkInteractor->SetInteractorStyle(cameraStyle);
   qvtkInteractor->Initialize();
 }
-void MainWindow::loadData()
-{
-	auto mesh = std::make_shared<open3d::geometry::TriangleMesh>();
-	open3d::io::ReadTriangleMeshOptions read;
-	open3d::io::ReadTriangleMeshFromOBJ("C:\\Users\\A015240\\Desktop\\Obj\\meshwithoutglb.obj",
-		*mesh, read);
-	vtkSmartPointer<vtkActor> actor =
-		textureMeshO3d2Vtk(mesh, Eigen::Matrix4d::Identity());
-	addTextureMesh(actor, mesh);
-	render();
+void MainWindow::loadData() {
+  auto mesh = std::make_shared<open3d::geometry::TriangleMesh>();
+  open3d::io::ReadTriangleMeshOptions read;
+  open3d::io::ReadTriangleMeshFromOBJ(
+      "C:\\Users\\A015240\\Desktop\\Obj\\meshwithoutglb.obj", *mesh, read);
+  vtkSmartPointer<vtkActor> actor =
+      textureMeshO3d2Vtk(mesh, Eigen::Matrix4d::Identity());
+  addTextureMesh(actor, mesh);
+  render();
 }
 void MainWindow::addPolyData(vtkSmartPointer<vtkPolyData> polydata,
                              bool append) {
@@ -69,6 +68,8 @@ void MainWindow::addPolyData(vtkSmartPointer<vtkPolyData> polydata,
   if (nullptr == curPolyData) {
     curPolyData = vtkSmartPointer<vtkPolyData>::New();
   }
+
+  create3DMarkWidget();
   curPolyData = polydata;
   double* center = polydata->GetCenter();
   curVtkcamera->SetFocalPoint(center[0], center[1], center[2]);  // 设焦点
@@ -78,18 +79,18 @@ void MainWindow::addPolyData(vtkSmartPointer<vtkPolyData> polydata,
   mapper->SetInputData(curPolyData);
   mapper->Update();
 
-  curactor->SetMapper(mapper);
-  // curactor->GetProperty()->EdgeVisibilityOn();
-  //     // curactor->GetProperty()->e
-  // curactor->GetProperty()->SetEdgeColor(0.0, 0.0, 0.0);  //
-  // 设置边界线颜色为黑色 curactor->GetProperty()->SetLineWidth(1.0);  //
+  curActor->SetMapper(mapper);
+  // curActor->GetProperty()->EdgeVisibilityOn();
+  //     // curActor->GetProperty()->e
+  // curActor->GetProperty()->SetEdgeColor(0.0, 0.0, 0.0);  //
+  // 设置边界线颜色为黑色 curActor->GetProperty()->SetLineWidth(1.0);  //
   // 设置边界线宽度
 
   //   ouraud 插值 (SetInterpolationToGouraud)：
   // 光照计算在每个顶点进行，然后在多边形内部使用线性插值计算光照值。这会产生较为平滑的光照过渡。
-  // curactor->GetProperty()->SetInterpolationToGouraud();
+  // curActor->GetProperty()->SetInterpolationToGouraud();
 
-  curVtkRenderer->AddActor(curactor);
+  curVtkRenderer->AddActor(curActor);
 }
 void MainWindow::addTextureMesh(
     vtkSmartPointer<vtkActor> actor,
@@ -97,12 +98,13 @@ void MainWindow::addTextureMesh(
   if (!append) {
     cleanMeshData();
   }
+ create3DMarkWidget();
   open3d::geometry::PointCloud cloud;
   cloud.points_ = mesh->vertices_;
   Eigen::Vector3d center = cloud.GetCenter();
   curVtkcamera->SetFocalPoint(center[0], center[1], center[2]);
-  curactor = actor;
-  curVtkRenderer->AddActor(curactor);
+  curActor = actor;
+  curVtkRenderer->AddActor(curActor);
   return;
 }
 vtkSmartPointer<vtkActor> MainWindow::textureMeshO3d2Vtk(
@@ -190,25 +192,118 @@ vtkSmartPointer<vtkActor> MainWindow::textureMeshO3d2Vtk(
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
   actor->SetTexture(vtktexture);
-  vtkSmartPointer<vtkProperty> frontProperty = vtkSmartPointer<vtkProperty>::New();
+  vtkSmartPointer<vtkProperty> frontProperty =
+      vtkSmartPointer<vtkProperty>::New();
 
   frontProperty->LightingOff();
-  //frontProperty->SetShading(false);
+  // frontProperty->SetShading(false);
   actor->SetProperty(frontProperty);
 
-  vtkSmartPointer<vtkProperty> backfaceProperty = vtkSmartPointer<vtkProperty>::New();
-  //backfaceProperty->LightingOff();
-  backfaceProperty->SetAmbient(0.2);  
-  backfaceProperty->SetDiffuse(0.2); 
+  vtkSmartPointer<vtkProperty> backfaceProperty =
+      vtkSmartPointer<vtkProperty>::New();
+  // backfaceProperty->LightingOff();
+  backfaceProperty->SetAmbient(0.25);
+  backfaceProperty->SetDiffuse(0.2);
   backfaceProperty->SetSpecular(0.1);
 
   actor->SetBackfaceProperty(backfaceProperty);
-  //vtkSmartPointer<vtkProperty> backfaceProperty = curactor->GetBackfaceProperty();
-  //backfaceProperty->LightingOn();
- /* actor->GetProperty()->BackfaceCullingOn();*/
+  // vtkSmartPointer<vtkProperty> backfaceProperty =
+  // curActor->GetBackfaceProperty(); backfaceProperty->LightingOn();
+  /* actor->GetProperty()->BackfaceCullingOn();*/
   return actor;
 }
+void MainWindow::create3DMarkWidget(){
+  if (nullptr==axesActor)
+  {
+   	axesActor = vtkSmartPointer<vtkAxesActor>::New();
+		axesActor->SetPosition(0, 0, 0);
+		axesActor->SetTotalLength(2.0, 2.0, 2.0);
+		axesActor->SetShaftTypeToCylinder();
+		axesActor->SetCylinderRadius(0.04);
+		axesActor->SetCylinderResolution(20);
+		axesActor->SetConeRadius(0.8);
+		axesActor->SetConeResolution(20);
 
+		axesActor->SetXAxisLabelText("X");
+		axesActor->SetYAxisLabelText("Y");
+		axesActor->SetZAxisLabelText("Z");
+		//修改vtkAxesActor默认的字体颜色，Axes为vtkAxesActor的对象指针
+		auto tpropX = vtkSmartPointer<vtkTextProperty>::New();
+		//tpropX->ItalicOn();
+		tpropX->BoldOn();
+		tpropX->SetColor(1, 0, 0);
+		//tpropX->ShadowOn();	//阴影
+		tpropX->SetFontFamilyToArial();
+		//tpropX->SetFontFamilyToTimes();
+		axesActor->GetXAxisCaptionActor2D()->SetCaptionTextProperty(tpropX);
+		//
+		auto tpropY = vtkSmartPointer<vtkTextProperty>::New();
+		tpropY->ShallowCopy(tpropX);
+		tpropY->SetColor(0, 1, 0);
+		axesActor->GetYAxisCaptionActor2D()->SetCaptionTextProperty(tpropY);
+		//    
+		auto tpropZ = vtkSmartPointer<vtkTextProperty>::New();
+		tpropZ->ShallowCopy(tpropX);
+		tpropZ->SetColor(0, 0, 1);
+		axesActor->GetZAxisCaptionActor2D()->SetCaptionTextProperty(tpropZ);
+auto cube = vtkSmartPointer<vtkAnnotatedCubeActor>::New();
+		cube->SetXPlusFaceText("R");
+		cube->SetXMinusFaceText("L");
+		cube->SetYPlusFaceText("F");
+		cube->SetYMinusFaceText("H");
+		cube->SetZPlusFaceText("I");
+		cube->SetZMinusFaceText("S");
+		//cube->SetXFaceTextRotation(180);
+		//cube->SetYFaceTextRotation(180);
+		//cube->SetZFaceTextRotation(-90);
+
+		cube->SetFaceTextScale(0.80);
+		cube->GetCubeProperty()->SetColor(1, 1, 1);
+
+		cube->GetTextEdgesProperty()->SetLineWidth(1);
+		cube->GetTextEdgesProperty()->SetDiffuse(0);
+		cube->GetTextEdgesProperty()->SetAmbient(1);
+		cube->GetTextEdgesProperty()->SetColor(0, 0, 0);
+
+		//    
+		cube->GetXPlusFaceProperty()->SetColor(0, 0, 0);
+		cube->GetXPlusFaceProperty()->SetInterpolationToFlat();
+
+		cube->GetXMinusFaceProperty()->SetColor(0, 0, 0);
+		cube->GetXMinusFaceProperty()->SetInterpolationToFlat();
+		//    
+		cube->GetYPlusFaceProperty()->SetColor(0, 0, 0);
+		cube->GetYPlusFaceProperty()->SetInterpolationToFlat();
+		//   
+		cube->GetYMinusFaceProperty()->SetColor(0, 0, 0);
+		cube->GetYMinusFaceProperty()->SetInterpolationToFlat();
+		//    
+		cube->GetZPlusFaceProperty()->SetColor(0, 0, 0);
+		cube->GetZPlusFaceProperty()->SetInterpolationToFlat();
+		//    
+		cube->GetZMinusFaceProperty()->SetColor(0, 0, 0);
+		cube->GetZMinusFaceProperty()->SetInterpolationToFlat();
+
+		auto assembly = vtkSmartPointer<vtkPropAssembly>::New();
+		assembly->AddPart(cube);
+		assembly->AddPart(axesActor);
+
+		// 控制坐标系,使之随视角共同变化 
+		if (orientationMarkerWidget == nullptr) {
+			orientationMarkerWidget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+			orientationMarkerWidget->SetOrientationMarker(assembly);
+			orientationMarkerWidget->SetInteractive(false);
+			orientationMarkerWidget->SetInteractor(qvtkInteractor);
+			orientationMarkerWidget->SetEnabled(true);
+			orientationMarkerWidget->InteractiveOff();
+		}
+
+  }
+  
+
+
+
+}
 void MainWindow::cleanMeshData() {
   vtkSmartPointer<vtkActorCollection> actors = curVtkRenderer->GetActors();
   actors->InitTraversal();
@@ -222,10 +317,10 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
     QList<QUrl> urlList = event->mimeData()->urls();
     if (urlList.size() == 1 && urlList[0].toLocalFile().endsWith(".ply")) {
       event->acceptProposedAction();
-    }else if (urlList.size() == 1 && urlList[0].toLocalFile().endsWith(".obj")) {
-        event->acceptProposedAction();
+    } else if (urlList.size() == 1 &&
+               urlList[0].toLocalFile().endsWith(".obj")) {
+      event->acceptProposedAction();
     }
-
   }
 }
 
@@ -243,18 +338,18 @@ void MainWindow::dropEvent(QDropEvent* event) {
       addPolyData(polyData);
       render();
     } else if (filePath.endsWith(".obj")) {
-        // std::shared_ptr<open3d::geometry::TriangleMesh> mesh =
-        //     std::make_shared<open3d::geometry::TriangleMesh>();
+      // std::shared_ptr<open3d::geometry::TriangleMesh> mesh =
+      //     std::make_shared<open3d::geometry::TriangleMesh>();
 
-        auto mesh = std::make_shared<open3d::geometry::TriangleMesh>();
-        open3d::io::ReadTriangleMeshOptions read;
-        open3d::io::ReadTriangleMeshFromOBJ(filePath.toStdString().c_str(),
-                                            *mesh, read);
-        vtkSmartPointer<vtkActor> actor =
-            textureMeshO3d2Vtk(mesh, Eigen::Matrix4d::Identity());
-        addTextureMesh(actor, mesh);
-        render();
-      }
+      auto mesh = std::make_shared<open3d::geometry::TriangleMesh>();
+      open3d::io::ReadTriangleMeshOptions read;
+      open3d::io::ReadTriangleMeshFromOBJ(filePath.toStdString().c_str(), *mesh,
+                                          read);
+      vtkSmartPointer<vtkActor> actor =
+          textureMeshO3d2Vtk(mesh, Eigen::Matrix4d::Identity());
+      addTextureMesh(actor, mesh);
+      render();
+    }
   }
 }
 void MainWindow::render() {
@@ -285,28 +380,26 @@ void MainWindow::slotCleanPoly() {
   curVtkRenderer->GetRenderWindow()->Render();
 }
 void MainWindow::slotEdgeOn(bool state) {
-  //if (state) {
-  //  curactor->GetProperty()->EdgeVisibilityOn();
-  //  //     // curactor->GetProperty()->e
-  //  curactor->GetProperty()->SetEdgeColor(0.0, 0.0,
-  //                                        0.0);  // 设置边界线颜色为黑色
-  //  curactor->GetProperty()->SetLineWidth(1.0);  // 设置边界线宽度
+  // if (state) {
+  //   curActor->GetProperty()->EdgeVisibilityOn();
+  //   //     // curActor->GetProperty()->e
+  //   curActor->GetProperty()->SetEdgeColor(0.0, 0.0,
+  //                                         0.0);  // 设置边界线颜色为黑色
+  //   curActor->GetProperty()->SetLineWidth(1.0);  // 设置边界线宽度
 
   //} else {
-  //  curactor->GetProperty()->EdgeVisibilityOff();
+  //  curActor->GetProperty()->EdgeVisibilityOff();
   //}
 
-    if (state) {
-        //curactor->GetProperty()->LightingOff();
-        //curactor->GetProperty()->BackfaceCullingOff();
-        //curactor->GetBackfaceProperty()->LightingOn();
-    }
-    else{
-		//curactor->GetProperty()->LightingOn();
-        //curactor->GetProperty()->BackfaceCullingOn();
-        //curactor->GetBackfaceProperty()->LightingOff();
-    }
-
+  if (state) {
+    // curActor->GetProperty()->LightingOff();
+    // curActor->GetProperty()->BackfaceCullingOff();
+    // curActor->GetBackfaceProperty()->LightingOn();
+  } else {
+    // curActor->GetProperty()->LightingOn();
+    // curActor->GetProperty()->BackfaceCullingOn();
+    // curActor->GetBackfaceProperty()->LightingOff();
+  }
 
   curVtkRenderer->GetRenderWindow()->Render();
 }
