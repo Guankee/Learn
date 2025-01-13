@@ -14,6 +14,7 @@
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 
+#include <vtkActorCollection.h>
 #include <numeric>
 #include <vector>
 

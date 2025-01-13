@@ -11,8 +11,12 @@ set(OpenCV_DIR "D:\\3D_Libs\\opencv-4.8.1\\install\\x64\\vc16\\lib")
 find_package(OpenCV REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
+message(${OpenCV_INCLUDE_DIRS})
+
+include_directories("D:\\3D_Libs\\opencv-4.8.1\\install\\include")
 add_executable(HelloCV main.cpp)
 target_link_libraries(HelloCV ${OpenCV_LIBRARIES})
 
 add_executable(aruco aruco.cpp)
 target_link_libraries(aruco ${OpenCV_LIBRARIES})
+target_include_directories(aruco PRIVATE ${OpenCV_INCLUDE_DIRS})

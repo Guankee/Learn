@@ -19,32 +19,34 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 //
 #include <vtkActor.h>
 #include <vtkActorCollection.h>
+#include <vtkAnnotatedCubeActor.h>
+#include <vtkAreaPicker.h>
+#include <vtkAxesActor.h>
 #include <vtkCamera.h>
+#include <vtkCaptionActor2D.h>
 #include <vtkDoubleArray.h>
 #include <vtkImageData.h>
 #include <vtkInformation.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkLight.h>
+#include <vtkOrientationMarkerWidget.h>
 #include <vtkPLYReader.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkPropAssembly.h>
 #include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkTexture.h>
-#include <vtkOrientationMarkerWidget.h>
-#include <vtkAxesActor.h>
-#include <vtkPropAssembly.h>
-#include <vtkAnnotatedCubeActor.h>
 #include <vtkTextProperty.h>
-#include <vtkCaptionActor2D.h>
+#include <vtkTexture.h>
+#include <vtkAreaPicker.h>
 // stl
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "PlanAreaInteractorStyle.h"
 
@@ -80,6 +82,14 @@ class MainWindow : public QMainWindow {
   void slotPlanStyle(bool state);
   void slotCleanPoly();
   void slotEdgeOn(bool state);
+  void slotBtn1();
+  void slotBtn2(bool state);
+  void slotBtn3();
+  void slotBtn4(bool state);
+  void slotBtn5();
+  void slotBtn6(bool state);
+
+
   // void slotShowNormal(bool state);
  private:
   vtkSmartPointer<vtkRenderer> curVtkRenderer{nullptr};
@@ -97,8 +107,8 @@ class MainWindow : public QMainWindow {
   vtkSmartPointer<vtkInteractorStyleTrackballCamera> cameraStyle =
       vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
 
-	vtkSmartPointer<vtkOrientationMarkerWidget> orientationMarkerWidget = nullptr;
-	vtkSmartPointer<vtkAxesActor> axesActor = nullptr;
+  vtkSmartPointer<vtkOrientationMarkerWidget> orientationMarkerWidget = nullptr;
+  vtkSmartPointer<vtkAxesActor> axesActor = nullptr;
 
  private:
   Ui::MainWindow *ui;

@@ -28,19 +28,19 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 # add_executable(vtk1 main.cpp)
 # target_link_libraries(vtk1    ${VTK_LIBRARIES} ${Open3D_LIBRARIES})
 
- add_executable(3d2vtk 3D2vtk.cpp)
- target_link_libraries(3d2vtk  ${VTK_LIBRARIES} ${Open3D_LIBRARIES})
+#  add_executable(3d2vtk 3D2vtk.cpp)
+#  target_link_libraries(3d2vtk  ${VTK_LIBRARIES} ${Open3D_LIBRARIES})
 # add_executable(open3d open3d.cpp)
 # target_link_libraries(open3d   ${Open3D_LIBRARIES})
-# add_executable(pick Pick.cpp)
-# target_link_libraries(pick   ${VTK_LIBRARIES})
+add_executable(pick Pick.cpp)
+target_link_libraries(pick   ${VTK_LIBRARIES})
 
-add_executable(angle angle.cpp CustomVtkArrowActor.h  CustomVtkArrowActor.cpp)
-target_link_libraries(angle  ${VTK_LIBRARIES} ${Open3D_LIBRARIES})
+# add_executable(angle angle.cpp CustomVtkArrowActor.h  CustomVtkArrowActor.cpp)
+# target_link_libraries(angle  ${VTK_LIBRARIES} ${Open3D_LIBRARIES})
 
 
 # 添加vs属性页下调试中的环境选项可以添加环境变量test1
 if(WIN32)
-set_target_properties(angle PROPERTIES
+set_target_properties(pick PROPERTIES
 VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${VTK_DIR}/../../../bin;${Open3D_DIR}/../bin")
 endif()
