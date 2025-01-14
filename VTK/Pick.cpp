@@ -23,7 +23,10 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkTriangle.h>
 #include<vtkPolyDataReader.h>
 #include<vtkCellLocator.h>
-
+#include <vtkPolyData.h>
+#include <vtkCellArray.h>
+#include <vtkCell.h>
+#include <vtkCleanPolyData.h>
 
 #include <algorithm>
 #include <array>
@@ -59,6 +62,28 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 //     return false;
 // }
 
+void FixPolyData(vtkPolyData* polyData) {
+	if (!polyData) {
+		std::cerr << "Invalid vtkPolyData input!" << std::endl;
+		return;
+	}
+
+	// Step 1: Merge duplicate points
+	vtkSmartPointer<vtkCleanPolyData> cleaner = vtkSmartPointer<vtkCleanPolyData>::New();
+	cleaner->SetInputData(polyData);
+	cleaner->SetTolerance(1e-6); // Adjust tolerance as needed
+	cleaner->Update();
+
+	vtkSmartPointer<vtkPolyData> cleanedPolyData = cleaner->GetOutput();
+
+	// Step 2: Rebuild Links to ensure connectivity
+	cleanedPolyData->BuildLinks();
+
+	// Replace input polyData with cleaned polyData
+	polyData->DeepCopy(cleanedPolyData);
+
+	std::cout << "PolyData cleaned and fixed!" << std::endl;
+}
 std::vector<vtkIdType> GetCellNeighbors(vtkSmartPointer<vtkPolyData> poly,
                                         vtkIdType cellId) {
 	std::vector<vtkIdType> cells;
@@ -74,6 +99,9 @@ std::vector<vtkIdType> GetCellNeighbors(vtkSmartPointer<vtkPolyData> poly,
 		edgePointIds->InsertNextId(ptId2);
 		vtkSmartPointer<vtkIdList> neighborCellIds = vtkSmartPointer<vtkIdList>::New();
 		poly->GetCellNeighbors(cellId, edgePointIds, neighborCellIds);
+        double bonds[6];
+        poly->GetCellBounds(cellId, bonds);
+        int ne = neighborCellIds->GetNumberOfIds();
 		for (vtkIdType j = 0; j < neighborCellIds->GetNumberOfIds(); ++j) {
 			cells.push_back(neighborCellIds->GetId(j));
 		}
@@ -277,27 +305,26 @@ bool checkPointInsidePolyData(vtkSmartPointer<vtkPolyData> poly,
 }
 
 int main(int, char*[]) {
-  //std::string filename = "D:\\ply\\6\\output_with_color.ply";
-
-  //// 创建一个 PLY 读取器
-  ////
-  //vtkSmartPointer<vtkPLYReader> reader = vtkSmartPointer<vtkPLYReader>::New();
-  //reader->SetFileName(filename.c_str());
-  //reader->Update();
-  // 读取文件
+	//std::string filename = "D:\\ply\\6\\output_with_color.ply";
+	//vtkSmartPointer<vtkPLYReader> reader = vtkSmartPointer<vtkPLYReader>::New();
+	//reader->SetFileName(filename.c_str());
+	//reader->Update();
  
-
-	vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
-	reader->SetFileName("C:\\Users\\A015240\\Desktop\\cutData.vtk");  // 设置文件路径
-	reader->Update();  // 读取文件
+ 	vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
+ 	reader->SetFileName("C:\\Users\\A015240\\Desktop\\cutData.vtk");  // 设置文件路径
+ 	reader->Update();  // 读取文件
 
 
   // 获取读取的 polyData
   vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput();
-
+  //bool flag = CheckIfAllTriangles(polyData);
+  std::cout << "Number of points: " << polyData->GetNumberOfPoints()
+	  << std::endl;
+  std::cout << "Number of cells: " << polyData->GetNumberOfCells() << std::endl;
+  FixPolyData(polyData);
   // 打印点和单元的数量
   std::cout << "Number of points: " << polyData->GetNumberOfPoints()
-            << std::endl;
+	  << std::endl;
   std::cout << "Number of cells: " << polyData->GetNumberOfCells() << std::endl;
 
    //std::vector<double> points{ 0.71438033083643981,

@@ -8,16 +8,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin/relea
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/debug)
 
 
-set(Open3D_DIR "D:/3D_Libs/Open3D/intall/CMake")
+# set(Open3D_DIR "D:/3D_Libs/Open3D/intall/CMake")
 #  set(VTK_DIR "E:/Medical_ae/trunk/Libs/VTK-9.0.1/lib/cmake/vtk-9.0")
-set(VTK_DIR "D:/3D_Libs/VTK-9.1.0/install/lib/cmake/vtk-9.1")
+set(VTK_DIR "D:/3D_Libs/VTK-9.1.0/install-pdb/lib/cmake/vtk-9.1")
 # include(vtk-config)
 find_package(VTK REQUIRED )
 include_directories(${VTK_INCLUDE_DIRS})
 
-find_package(Open3D REQUIRED)
-include_directories(${Open3D_INCLUDE_DIRS})
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+# set(VTK_PDB_DIR "D:/3D_Libs/VTK-9.1.0/install-pdb/pdb")
+# file(GLOB PDB_FILES "${VTK_PDB_DIR}/*.pdb")
+# # message(${PDB_FILES})
+# foreach(PDB_FILE ${PDB_FILES})
+#     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /PDB:${PDB_FILE}")
+# endforeach()
+
+
+# find_package(Open3D REQUIRED)
+# include_directories(${Open3D_INCLUDE_DIRS})
+# include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 
 
