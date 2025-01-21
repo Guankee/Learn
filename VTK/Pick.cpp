@@ -4,7 +4,11 @@ VTK_MODULE_INIT(vtkRenderingFreeType)
 VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkActor.h>
 #include <vtkCamera.h>
+#include <vtkCell.h>
+#include <vtkCellArray.h>
 #include <vtkCellLocator.h>
+#include <vtkCellLocator.h>
+#include <vtkCleanPolyData.h>
 #include <vtkGenericCell.h>
 #include <vtkIdList.h>
 #include <vtkInteractorStyleRubberBandPick.h>
@@ -14,6 +18,7 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkPLYWriter.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkPolyDataReader.h>
 #include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -21,12 +26,6 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 #include <vtkTriangle.h>
-#include<vtkPolyDataReader.h>
-#include<vtkCellLocator.h>
-#include <vtkPolyData.h>
-#include <vtkCellArray.h>
-#include <vtkCell.h>
-#include <vtkCleanPolyData.h>
 
 #include <algorithm>
 #include <array>
@@ -34,7 +33,6 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <queue>
 #include <string>
 #include <unordered_set>
-#include <vector>
 #include <vector>
 
 // bool IsBoundaryCell(vtkPolyData* polyData, vtkIdType cellId) {
@@ -62,54 +60,54 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 //     return false;
 // }
 
-void FixPolyData(vtkPolyData* polyData) {
-	if (!polyData) {
-		std::cerr << "Invalid vtkPolyData input!" << std::endl;
-		return;
-	}
+void FixPolyData(vtkSmartPointer<vtkPolyData> polyData) {
+  if (!polyData) {
+    std::cerr << "Invalid vtkPolyData input!" << std::endl;
+    return;
+  }
 
-	// Step 1: Merge duplicate points
-	vtkSmartPointer<vtkCleanPolyData> cleaner = vtkSmartPointer<vtkCleanPolyData>::New();
-	cleaner->SetInputData(polyData);
-	cleaner->SetTolerance(1e-6); // Adjust tolerance as needed
-	cleaner->Update();
+  // Step 1: Merge duplicate points
+  vtkSmartPointer<vtkCleanPolyData> cleaner =
+      vtkSmartPointer<vtkCleanPolyData>::New();
+  cleaner->SetInputData(polyData);
+  cleaner->SetTolerance(1e-6);  // Adjust tolerance as needed
+  cleaner->Update();
 
-	vtkSmartPointer<vtkPolyData> cleanedPolyData = cleaner->GetOutput();
+  vtkSmartPointer<vtkPolyData> cleanedPolyData = cleaner->GetOutput();
 
-	// Step 2: Rebuild Links to ensure connectivity
-	cleanedPolyData->BuildLinks();
+  // Step 2: Rebuild Links to ensure connectivity
+  cleanedPolyData->BuildLinks();
 
-	// Replace input polyData with cleaned polyData
-	polyData->DeepCopy(cleanedPolyData);
+  // Replace input polyData with cleaned polyData
+  polyData->DeepCopy(cleanedPolyData);
 
-	std::cout << "PolyData cleaned and fixed!" << std::endl;
+  std::cout << "PolyData cleaned and fixed!" << std::endl;
 }
 std::vector<vtkIdType> GetCellNeighbors(vtkSmartPointer<vtkPolyData> poly,
                                         vtkIdType cellId) {
-	std::vector<vtkIdType> cells;
-	vtkNew<vtkIdList> cellPoints;
-	vtkNew<vtkIdList> neighborCellIds;
-	poly->GetCellPoints(cellId, cellPoints);
-	poly->BuildLinks();
-	for (vtkIdType i = 0; i < cellPoints->GetNumberOfIds(); ++i) {
-		vtkSmartPointer<vtkIdList> edgePointIds = vtkSmartPointer<vtkIdList>::New();
-		vtkIdType ptId1 = cellPoints->GetId(i);
-		vtkIdType ptId2 = cellPoints->GetId((i + 1) % cellPoints->GetNumberOfIds());
-		edgePointIds->InsertNextId(ptId1);
-		edgePointIds->InsertNextId(ptId2);
-		vtkSmartPointer<vtkIdList> neighborCellIds = vtkSmartPointer<vtkIdList>::New();
-		poly->GetCellNeighbors(cellId, edgePointIds, neighborCellIds);
-        double bonds[6];
-        poly->GetCellBounds(cellId, bonds);
-        int ne = neighborCellIds->GetNumberOfIds();
-		for (vtkIdType j = 0; j < neighborCellIds->GetNumberOfIds(); ++j) {
-			cells.push_back(neighborCellIds->GetId(j));
-		}
-	}
-	return cells;
+  std::vector<vtkIdType> cells;
+  vtkNew<vtkIdList> cellPoints;
+  vtkNew<vtkIdList> neighborCellIds;
+  poly->GetCellPoints(cellId, cellPoints);
+  poly->BuildLinks();
+  for (vtkIdType i = 0; i < cellPoints->GetNumberOfIds(); ++i) {
+    vtkSmartPointer<vtkIdList> edgePointIds = vtkSmartPointer<vtkIdList>::New();
+    vtkIdType ptId1 = cellPoints->GetId(i);
+    vtkIdType ptId2 = cellPoints->GetId((i + 1) % cellPoints->GetNumberOfIds());
+    edgePointIds->InsertNextId(ptId1);
+    edgePointIds->InsertNextId(ptId2);
+    vtkSmartPointer<vtkIdList> neighborCellIds =
+        vtkSmartPointer<vtkIdList>::New();
+    poly->GetCellNeighbors(cellId, edgePointIds, neighborCellIds);
+    double bonds[6];
+    poly->GetCellBounds(cellId, bonds);
+    int ne = neighborCellIds->GetNumberOfIds();
+    for (vtkIdType j = 0; j < neighborCellIds->GetNumberOfIds(); ++j) {
+      cells.push_back(neighborCellIds->GetId(j));
+    }
+  }
+  return cells;
 }
-
-
 
 bool IsMeshBoundary(vtkSmartPointer<vtkPolyData> poly, vtkIdType cellId,
                     int maxIter, std::unordered_set<vtkIdType>& set) {
@@ -128,7 +126,7 @@ bool IsMeshBoundary(vtkSmartPointer<vtkPolyData> poly, vtkIdType cellId,
       set.insert(curId);
 
       std::vector<vtkIdType> neighbors = GetCellNeighbors(poly, curId);
-      if (neighbors.size() <3) {
+      if (neighbors.size() < 3) {
         return true;
       }
 
@@ -151,8 +149,8 @@ bool checkPointInsidePolyData(vtkSmartPointer<vtkPolyData> poly,
   cellLocator->SetDataSet(poly);
   cellLocator->BuildLocator();
   auto assistCell = vtkSmartPointer<vtkGenericCell>::New();
-  double closestPoint[3];  // the coordinates of the closest point will be
-                           // returned here
+  double closestPoint[3];    // the coordinates of the closest point will be
+                             // returned here
   double closestPointDist2;  // the squared distance to the closest point will
                              // be returned here
   vtkIdType cellId;  // the cell id of the cell containing the closest point
@@ -273,15 +271,15 @@ bool checkPointInsidePolyData(vtkSmartPointer<vtkPolyData> poly,
   //// 检查单元的每条边
   // for (vtkIdType i = 0; i < cellPoints->GetNumberOfIds(); ++i) {
   //	vtkSmartPointer<vtkIdList> edgePointIds =
-  //vtkSmartPointer<vtkIdList>::New(); 	vtkIdType ptId1 = cellPoints->GetId(i);
-  //	vtkIdType ptId2 = cellPoints->GetId((i + 1) %
-  //cellPoints->GetNumberOfIds()); 	edgePointIds->InsertNextId(ptId1);
+  // vtkSmartPointer<vtkIdList>::New(); 	vtkIdType ptId1 =
+  // cellPoints->GetId(i); 	vtkIdType ptId2 = cellPoints->GetId((i + 1) %
+  // cellPoints->GetNumberOfIds()); 	edgePointIds->InsertNextId(ptId1);
   //	edgePointIds->InsertNextId(ptId2);
 
   //	std::cout << "Edge points: " << ptId1 << " " << ptId2 << std::endl;
 
   //	vtkSmartPointer<vtkIdList> neighborCellIds =
-  //vtkSmartPointer<vtkIdList>::New();
+  // vtkSmartPointer<vtkIdList>::New();
 
   //	// 调用 GetCellNeighbors 方法
   //	poly->GetCellNeighbors(cellId, edgePointIds, neighborCellIds);
@@ -290,12 +288,13 @@ bool checkPointInsidePolyData(vtkSmartPointer<vtkPolyData> poly,
   //	if (!neighborCellIds || neighborCellIds->GetNumberOfIds() < 1) {
   //		//allEdgesHaveNeighbors = false;
   //		std::cerr << "Edge " << ptId1 << "-" << ptId2 << "-------------
-  //has no neighbor cells-----------." << std::endl; 		return false;
+  // has no neighbor cells-----------." << std::endl; 		return false;
   //	}
   //	else {
   //		std::cout << "Neighbor cells for edge " << ptId1 << "-" << ptId2
-  //<< ": "; 		for (vtkIdType j = 0; j < neighborCellIds->GetNumberOfIds(); ++j) {
-  //			std::cout << neighborCellIds->GetId(j) << " ";
+  //<< ": "; 		for (vtkIdType j = 0; j <
+  //neighborCellIds->GetNumberOfIds(); ++j) { 			std::cout <<
+  //neighborCellIds->GetId(j) << " ";
   //		}
   //		std::cout << std::endl;
   //	}
@@ -305,35 +304,37 @@ bool checkPointInsidePolyData(vtkSmartPointer<vtkPolyData> poly,
 }
 
 int main(int, char*[]) {
-	//std::string filename = "D:\\ply\\6\\output_with_color.ply";
-	//vtkSmartPointer<vtkPLYReader> reader = vtkSmartPointer<vtkPLYReader>::New();
-	//reader->SetFileName(filename.c_str());
-	//reader->Update();
- 
- 	vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
- 	reader->SetFileName("C:\\Users\\A015240\\Desktop\\cutData.vtk");  // 设置文件路径
- 	reader->Update();  // 读取文件
+  // std::string filename = "D:\\ply\\6\\output_with_color.ply";
+  // vtkSmartPointer<vtkPLYReader> reader =
+  // vtkSmartPointer<vtkPLYReader>::New();
+  // reader->SetFileName(filename.c_str());
+  // reader->Update();
 
+  vtkSmartPointer<vtkPolyDataReader> reader =
+      vtkSmartPointer<vtkPolyDataReader>::New();
+  reader->SetFileName(
+      "C:\\Users\\A015240\\Desktop\\cutData.vtk");  // 设置文件路径
+  reader->Update();                                 // 读取文件
 
   // 获取读取的 polyData
   vtkSmartPointer<vtkPolyData> polyData = reader->GetOutput();
-  //bool flag = CheckIfAllTriangles(polyData);
+  // bool flag = CheckIfAllTriangles(polyData);
   std::cout << "Number of points: " << polyData->GetNumberOfPoints()
-	  << std::endl;
+            << std::endl;
   std::cout << "Number of cells: " << polyData->GetNumberOfCells() << std::endl;
   FixPolyData(polyData);
   // 打印点和单元的数量
   std::cout << "Number of points: " << polyData->GetNumberOfPoints()
-	  << std::endl;
+            << std::endl;
   std::cout << "Number of cells: " << polyData->GetNumberOfCells() << std::endl;
 
-   //std::vector<double> points{ 0.71438033083643981,
-   //0.00081929035976531506,0.056970278379591427 };
-  std::vector<double> points{ 0.653973,-0.00992344,0.134852 };
+  // std::vector<double> points{ 0.71438033083643981,
+  // 0.00081929035976531506,0.056970278379591427 };
+  std::vector<double> points{0.653973, -0.00992344, 0.134852};
   checkPointInsidePolyData(polyData, points);
 
   // 可视化读取的 polyData
-  // vtkSmartPointer<vtkPolyDataMapper> mapper = 
+  // vtkSmartPointer<vtkPolyDataMapper> mapper =
   // vtkSmartPointer<vtkPolyDataMapper>::New(); mapper->SetInputData(polyData);
 
   // vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();

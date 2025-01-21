@@ -401,12 +401,27 @@ void MainWindow::slotEdgeOn(bool state) {
 }
 
 void MainWindow::slotBtn1() {
-	vtkNew<vtkAreaPicker> areaPicker;
-		qvtkInteractor->SetPicker(areaPicker);
-		qvtkInteractor->Start();
+    if (!boxWidget){
+		boxWidget =
+			vtkSmartPointer<vtkBoxWidget>::New();
+		boxWidget->SetInteractor(qvtkInteractor);
+    }
+
+    boxWidget->SetProp3D(curActor);
+	boxWidget->SetPlaceFactor(1.1);
+	boxWidget->PlaceWidget();
+	//boxWidget->SetInsideOut(0);
+    //boxWidget->SetInsideOut(true);
+	vtkNew<vtkMyCallback> callback;
+    callback->SetData(curVtkRenderer,curActor);
+	boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
+
+    boxWidget->On();
 }
 void MainWindow::slotBtn2(bool state) {}
-void MainWindow::slotBtn3() {}
+void MainWindow::slotBtn3() {
+    boxWidget->Off();
+}
 void MainWindow::slotBtn4(bool state) {}
 void MainWindow::slotBtn5() {}
 void MainWindow::slotBtn6(bool state) {}

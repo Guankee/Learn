@@ -42,6 +42,14 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkTextProperty.h>
 #include <vtkTexture.h>
 #include <vtkAreaPicker.h>
+#include <vtkBoxWidget.h>
+#include <vtkBoxWidget2.h>
+#include <vtkBoxRepresentation.h>
+#include <vtkCommand.h>
+#include <vtkTransform.h>
+#include <vtkPlanes.h>
+#include <vtkExtractPolyDataGeometry.h>
+#include <vtkDataSetMapper.h>
 // stl
 #include <iostream>
 #include <memory>
@@ -53,6 +61,61 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 namespace Ui {
 class MainWindow;
 }
+
+namespace {
+	class vtkMyCallback : public vtkCommand
+	{
+	public:
+		static vtkMyCallback* New()
+		{
+			return new vtkMyCallback;
+		}
+		void SetData(vtkSmartPointer<vtkRenderer>renderer, vtkSmartPointer<vtkActor>actor) {
+			curRenderer = renderer;
+			curActor = actor;
+		}
+		virtual void Execute(vtkObject* caller, unsigned long, void*)
+		{
+			// Here we use the vtkBoxWidget to transform the underlying coneActor
+			// (by manipulating its transformation matrix).
+			//vtkNew<vtkTransform> t;
+			vtkBoxWidget* widget = reinterpret_cast<vtkBoxWidget*>(caller);
+			//vtkPlanes* frustum;
+			vtkNew<vtkPlanes>frustum;
+			widget->GetPlanes(frustum);
+			vtkNew<vtkExtractPolyDataGeometry> clipper;
+			vtkPolyData* data = vtkPolyData::SafeDownCast(curActor->GetMapper()->GetInput());
+			clipper->SetInputData(data);
+			clipper->SetImplicitFunction(frustum);
+			clipper->Update();
+
+			if (clipper->GetOutput()->GetNumberOfCells() != 0){
+				curRenderer->RemoveActor(curActor);
+			}
+			selectPloyData = clipper->GetOutput();
+			selectMapper->SetInputData(clipper->GetOutput());
+			selectActor->SetMapper(selectMapper);
+			if (curActor->GetTexture()){
+				selectActor->SetTexture(curActor->GetTexture());
+				selectActor->GetProperty()->LightingOff();
+			}
+			curRenderer->AddActor(selectActor);
+			curRenderer->Render();
+			
+
+			//widget->GetTransform(t);
+			//widget->GetProp3D()->SetUserTransform(t);
+
+
+		}
+	private:
+		vtkSmartPointer<vtkRenderer>curRenderer;
+		vtkSmartPointer<vtkActor>curActor;
+		vtkSmartPointer<vtkPolyData>selectPloyData;
+		vtkSmartPointer<vtkDataSetMapper>selectMapper=vtkSmartPointer<vtkDataSetMapper>::New();
+		vtkSmartPointer<vtkActor>selectActor = vtkSmartPointer<vtkActor>::New();
+	};
+} // namespace
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
@@ -109,7 +172,7 @@ class MainWindow : public QMainWindow {
 
   vtkSmartPointer<vtkOrientationMarkerWidget> orientationMarkerWidget = nullptr;
   vtkSmartPointer<vtkAxesActor> axesActor = nullptr;
-
+  vtkSmartPointer<vtkBoxWidget> boxWidget = nullptr;
  private:
   Ui::MainWindow *ui;
 };
