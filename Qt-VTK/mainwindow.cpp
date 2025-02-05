@@ -384,7 +384,7 @@ void MainWindow::slotEdgeOn(bool state) {
     curActor->GetProperty()->SetLineWidth(1.0);  // 设置边界线宽度
 
   } else {
-   curActor->GetProperty()->EdgeVisibilityOff();
+    curActor->GetProperty()->EdgeVisibilityOff();
   }
 
   // if (state) {
@@ -401,67 +401,63 @@ void MainWindow::slotEdgeOn(bool state) {
 }
 
 void MainWindow::slotBtn1() {
-	//if (!boxWidget) {
-	//	boxWidget =
-	//		vtkSmartPointer<vtkBoxWidget>::New();
-	//	boxWidget->SetInteractor(qvtkInteractor);
-	//}
+  // if (!boxWidget) {
+  //	boxWidget =
+  //		vtkSmartPointer<vtkBoxWidget>::New();
+  //	boxWidget->SetInteractor(qvtkInteractor);
+  // }
 
- //   boxWidget->SetProp3D(curActor);
-	//boxWidget->SetPlaceFactor(1.1);
-	//boxWidget->PlaceWidget();
-	////boxWidget->SetInsideOut(0);
- //   //boxWidget->HandlesOff();
- //   //boxWidget->SetInsideOut(true);
- //   boxWidget->SetOutlineCursorWires(1);
- //   
-	//vtkProperty* pr = boxWidget->GetHandleProperty();
-	//vtkProperty* spr = boxWidget->GetSelectedHandleProperty();
- //   pr->SetNormalScale(0.2);
-	////pr->SetColor(1, 0, 0);
-	////spr->SetColor(0, 0, 1);
- //  
-	//vtkNew<vtkMyCallback> callback;
- //   callback->SetData(curVtkRenderer,curActor);
-	//boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
+  //   boxWidget->SetProp3D(curActor);
+  // boxWidget->SetPlaceFactor(1.1);
+  // boxWidget->PlaceWidget();
+  ////boxWidget->SetInsideOut(0);
+  //   //boxWidget->HandlesOff();
+  //   //boxWidget->SetInsideOut(true);
+  //   boxWidget->SetOutlineCursorWires(1);
+  //
+  // vtkProperty* pr = boxWidget->GetHandleProperty();
+  // vtkProperty* spr = boxWidget->GetSelectedHandleProperty();
+  //   pr->SetNormalScale(0.2);
+  ////pr->SetColor(1, 0, 0);
+  ////spr->SetColor(0, 0, 1);
+  //
+  // vtkNew<vtkMyCallback> callback;
+  //   callback->SetData(curVtkRenderer,curActor);
+  // boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
 
- //   boxWidget->On();
+  //   boxWidget->On();
 
-
-    cutActorBox->SetActor(curActor);
-    cutActorBox->On();
-
+  cutActorBox->SetActor(curActor);
+  cutActorBox->On();
 }
 void MainWindow::slotBtn2(bool state) {}
-void MainWindow::slotBtn3() {
-    cutActorBox->Off();
-}
+void MainWindow::slotBtn3() { cutActorBox->Off(); }
 void MainWindow::slotBtn4(bool state) {}
 void MainWindow::slotBtn5() {
-	if (!cutActorBox) {
-		cutActorBox = vtkSmartPointer<CutActorBoxWidget>::New();
-	}
+  if (!cutActorBox) {
+    cutActorBox = vtkSmartPointer<CutActorBoxWidget>::New();
+  }
 
-	cutActorBox->SetIneractor(qvtkInteractor);
-	cutActorBox->SetRenderer(curVtkRenderer);
+  cutActorBox->SetIneractor(qvtkInteractor);
+  cutActorBox->SetRenderer(curVtkRenderer);
 
-    //cleanMeshData();
-    //vtkSmartPointer<vtkPolyData> polyData = cutActorBox->GetSelectPolyData();
-    //int num = polyData->GetNumberOfCells();
-    //vtkNew<vtkDataSetMapper>mapper;
-    //mapper->SetInputData(polyData);
-    //vtkNew<vtkActor>actor;
-    //actor->SetMapper(mapper);
-    //vtkNew<vtkRenderer>render;
-    //render->AddActor(actor);
-    //vtkNew<vtkRenderWindow>window;
-    //window->AddRenderer(render);
-    //window->SetSize(800, 600);
-    //vtkNew<vtkRenderWindowInteractor>intor;
-    //intor->SetRenderWindow(window);
-    //window->Render();
-    //intor->Start();
-    //addPolyData(polyData);
-    //render();
+  // cleanMeshData();
+  // vtkSmartPointer<vtkPolyData> polyData = cutActorBox->GetSelectPolyData();
+  // int num = polyData->GetNumberOfCells();
+  // vtkNew<vtkDataSetMapper>mapper;
+  // mapper->SetInputData(polyData);
+  // vtkNew<vtkActor>actor;
+  // actor->SetMapper(mapper);
+  // vtkNew<vtkRenderer>render;
+  // render->AddActor(actor);
+  // vtkNew<vtkRenderWindow>window;
+  // window->AddRenderer(render);
+  // window->SetSize(800, 600);
+  // vtkNew<vtkRenderWindowInteractor>intor;
+  // intor->SetRenderWindow(window);
+  // window->Render();
+  // intor->Start();
+  // addPolyData(polyData);
+  // render();
 }
 void MainWindow::slotBtn6(bool state) {}
