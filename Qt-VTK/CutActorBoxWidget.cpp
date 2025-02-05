@@ -50,6 +50,27 @@ CutActorBoxWidget::CutActorBoxWidget() {
 CutActorBoxWidget::~CutActorBoxWidget() {
 
 }
+bool CutActorBoxWidget::IsHasPolyData(vtkSmartPointer<vtkActor> actor)
+{
+	if (nullptr==actor){
+		return false;
+	}
+	vtkMapper* mapper = actor->GetMapper();
+	if (!mapper) {
+		return false; 
+	}
+	vtkPolyData* polyData = vtkPolyData::SafeDownCast(mapper->GetInput());
+	if (!polyData) {
+		return false; 
+	}
+
+	vtkCellArray* cells = polyData->GetPolys(); 
+	if (!cells) {
+		return false; 
+	}
+	int numCells = cells->GetNumberOfCells();
+	return numCells > 0; 
+}
 void CutActorBoxWidget::SetIneractor(vtkSmartPointer<QVTKInteractor>interactor)
 {
 	if (!interactor){
@@ -74,6 +95,12 @@ void CutActorBoxWidget::SetActor(vtkSmartPointer<vtkActor> actor)
 
 void CutActorBoxWidget::On()
 {
+	if (IsHasPolyData(command->GetSelectActor())) {
+    boxWidget->SetProp3D(command->GetSelectActor());
+    boxWidget->SetPlaceFactor(1.1);
+    boxWidget->PlaceWidget();
+  }
+  
 	boxWidget->On();
 }
 

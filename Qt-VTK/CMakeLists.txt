@@ -35,15 +35,11 @@ include_directories(${VTK_INCLUDE_DIRS})
 
 find_package(Open3D REQUIRED)
 include_directories(${Open3D_INCLUDE_DIRS})
-set(vtkInclude "E:\\Medical_ae\\trunk\\Libs\\VTK-9.0.1\\include\\vtk-9.0")
+
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/ui)
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/qrc)
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
-
-include_directories(${vtkInclude})
-
-message("ff: " ${vtkInclude})
 include_directories("E:/Medical_ae/trunk/Libs/VTK-9.0.1/include/vtk-9.0")
 
 file( GLOB header_list ${CMAKE_CURRENT_SOURCE_DIR}/*.h  )

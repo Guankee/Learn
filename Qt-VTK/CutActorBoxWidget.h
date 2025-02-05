@@ -12,6 +12,7 @@
 #include<vtkCommand.h>
 #include<vtkPlanes.h>
 #include<vtkExtractPolyDataGeometry.h>
+#include<QVTKInteractor.h>
 
 class CutActorBoxWidgetCommand :public vtkCommand
 {
@@ -31,6 +32,7 @@ public:
 		curActor = actor;
 	}
 	vtkSmartPointer<vtkPolyData> GetSelectPolyData() { return selectPolyData; }
+  vtkSmartPointer<vtkActor>GetSelectActor(){return selectActor;}
 private:
 	vtkSmartPointer<vtkActor>curActor = nullptr;
 	vtkSmartPointer<vtkRenderer>curRenderer = nullptr;
@@ -59,6 +61,8 @@ public:
 	CutActorBoxWidget();
 	~CutActorBoxWidget();
 private:
+	bool IsHasPolyData(vtkSmartPointer<vtkActor>actor);
+private:
 	vtkSmartPointer<QVTKInteractor>curInteractor = nullptr;
 	vtkSmartPointer<vtkProperty>actorFrontProperty = nullptr;
 	vtkSmartPointer<vtkProperty>actorBackProperty = nullptr;
@@ -66,11 +70,4 @@ private:
 	vtkSmartPointer<CutActorBoxWidgetCommand>command = nullptr;
 
 };
-
-
-
-
-
-
-
 #endif //CUT_ACTOR_BOX_WIDGET_H

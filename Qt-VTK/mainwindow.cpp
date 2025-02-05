@@ -401,11 +401,11 @@ void MainWindow::slotEdgeOn(bool state) {
 }
 
 void MainWindow::slotBtn1() {
- //   if (!boxWidget){
+	//if (!boxWidget) {
 	//	boxWidget =
 	//		vtkSmartPointer<vtkBoxWidget>::New();
 	//	boxWidget->SetInteractor(qvtkInteractor);
- //   }
+	//}
 
  //   boxWidget->SetProp3D(curActor);
 	//boxWidget->SetPlaceFactor(1.1);
@@ -427,14 +427,8 @@ void MainWindow::slotBtn1() {
 
  //   boxWidget->On();
 
-    if (!cutActorBox){
-        cutActorBox = vtkSmartPointer<CutActorBoxWidget>::New();
-    }
 
-    cutActorBox->SetIneractor(qvtkInteractor);
     cutActorBox->SetActor(curActor);
-    cutActorBox->SetRenderer(curVtkRenderer);
-
     cutActorBox->On();
 
 }
@@ -444,22 +438,29 @@ void MainWindow::slotBtn3() {
 }
 void MainWindow::slotBtn4(bool state) {}
 void MainWindow::slotBtn5() {
-    cleanMeshData();
-    vtkSmartPointer<vtkPolyData> polyData = cutActorBox->GetSelectPolyData();
-    int num = polyData->GetNumberOfCells();
-    vtkNew<vtkDataSetMapper>mapper;
-    mapper->SetInputData(polyData);
-    vtkNew<vtkActor>actor;
-    actor->SetMapper(mapper);
-    vtkNew<vtkRenderer>render;
-    render->AddActor(actor);
-    vtkNew<vtkRenderWindow>window;
-    window->AddRenderer(render);
-    window->SetSize(800, 600);
-    vtkNew<vtkRenderWindowInteractor>intor;
-    intor->SetRenderWindow(window);
-    window->Render();
-    intor->Start();
+	if (!cutActorBox) {
+		cutActorBox = vtkSmartPointer<CutActorBoxWidget>::New();
+	}
+
+	cutActorBox->SetIneractor(qvtkInteractor);
+	cutActorBox->SetRenderer(curVtkRenderer);
+
+    //cleanMeshData();
+    //vtkSmartPointer<vtkPolyData> polyData = cutActorBox->GetSelectPolyData();
+    //int num = polyData->GetNumberOfCells();
+    //vtkNew<vtkDataSetMapper>mapper;
+    //mapper->SetInputData(polyData);
+    //vtkNew<vtkActor>actor;
+    //actor->SetMapper(mapper);
+    //vtkNew<vtkRenderer>render;
+    //render->AddActor(actor);
+    //vtkNew<vtkRenderWindow>window;
+    //window->AddRenderer(render);
+    //window->SetSize(800, 600);
+    //vtkNew<vtkRenderWindowInteractor>intor;
+    //intor->SetRenderWindow(window);
+    //window->Render();
+    //intor->Start();
     //addPolyData(polyData);
     //render();
 }
