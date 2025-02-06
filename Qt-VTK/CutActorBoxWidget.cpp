@@ -44,6 +44,16 @@ CutActorBoxWidget::CutActorBoxWidget() {
     command = vtkSmartPointer<CutActorBoxWidgetCommand>::New();
   }
   boxWidget->AddObserver(vtkCommand::InteractionEvent, command);
+  vtkProperty*pr=boxWidget->GetOutlineProperty();
+  vtkProperty*spr=boxWidget->GetSelectedOutlineProperty();
+  pr->SetColor(0,0,1.0);
+  spr->SetColor(1.0,0,0);
+  pr=boxWidget->GetHandleProperty();
+  spr=boxWidget->GetSelectedHandleProperty();
+  pr->SetColor(0.3,1.0,0);
+  pr->SetOpacity(0.6);
+  spr->SetColor(1.0,0,0);
+  spr->SetOpacity(0.6);
 }
 CutActorBoxWidget::~CutActorBoxWidget() {}
 bool CutActorBoxWidget::IsHasPolyData(vtkSmartPointer<vtkActor> actor) {
@@ -81,7 +91,7 @@ void CutActorBoxWidget::SetRenderer(vtkSmartPointer<vtkRenderer> render) {
 
 void CutActorBoxWidget::SetActor(vtkSmartPointer<vtkActor> actor) {
   boxWidget->SetProp3D(actor);
-  boxWidget->SetPlaceFactor(1.1);
+  boxWidget->SetPlaceFactor(1.0);
   boxWidget->PlaceWidget();
   command->setActor(actor);
 }
@@ -89,7 +99,7 @@ void CutActorBoxWidget::SetActor(vtkSmartPointer<vtkActor> actor) {
 void CutActorBoxWidget::On() {
   if (IsHasPolyData(command->GetSelectActor())) {
     boxWidget->SetProp3D(command->GetSelectActor());
-    boxWidget->SetPlaceFactor(1.1);
+    boxWidget->SetPlaceFactor(1.0);
     boxWidget->PlaceWidget();
   }
 
