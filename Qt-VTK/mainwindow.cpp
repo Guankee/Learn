@@ -18,6 +18,13 @@ MainWindow::MainWindow(QWidget* parent)
   connect(ui->Btn4, &QPushButton::toggled, this, &MainWindow::slotBtn4);
   connect(ui->Btn5, &QPushButton::clicked, this, &MainWindow::slotBtn5);
   connect(ui->Btn6, &QPushButton::toggled, this, &MainWindow::slotBtn6);
+  connect(ui->Btn7, &QPushButton::clicked, this, &MainWindow::slotBtn7);
+  connect(ui->Btn8, &QPushButton::clicked, this, &MainWindow::slotBtn8);
+  connect(ui->Btn9, &QPushButton::clicked, this, &MainWindow::slotBtn9);
+  connect(ui->Btn10, &QPushButton::clicked, this, &MainWindow::slotBtn10);
+  connect(ui->Btn11, &QPushButton::clicked, this, &MainWindow::slotBtn11);
+  connect(ui->Btn12, &QPushButton::clicked, this, &MainWindow::slotBtn12);
+
   loadData();
 }
 
@@ -344,13 +351,15 @@ void MainWindow::dropEvent(QDropEvent* event) {
 void MainWindow::render() {
   if (curVtkRenderer) {
     curVtkRenderer->GetRenderWindow()->Render();
+ /*   curVtkRenderer->Render();*/
     ui->qVTKOpenglWidget->repaint();
   }
 }
 
 void MainWindow::slotPlanStyle(bool state) {
   if (state) {
-    planStyle->setPolyData(polyData);
+    //planStyle->setPolyData(polyData);
+    planStyle->setActor(curActor);
     planStyle->setRenderer(curVtkRenderer);
     qvtkInteractor->SetRenderWindow(curentVtkWindow);
     qvtkInteractor->SetInteractorStyle(planStyle);
@@ -401,45 +410,80 @@ void MainWindow::slotEdgeOn(bool state) {
 }
 
 void MainWindow::slotBtn1() {
-  // if (!boxWidget) {
-  //	boxWidget =
-  //		vtkSmartPointer<vtkBoxWidget>::New();
-  //	boxWidget->SetInteractor(qvtkInteractor);
-  // }
+ //   vtkNew<vtkCubeSource>cubSource;
+ //   cubSource->SetXLength(0.01);
+ //   cubSource->SetYLength(0.01);
+ //   cubSource->SetZLength(0.01);
+ //   cubSource->SetCenter(0.638563, 0.0476707, 0.14582);
+ //   //cubSource->SetCenter(0.635908,0.0306695,0.158201);
+ //   cubSource->Update();
 
-  //   boxWidget->SetProp3D(curActor);
-  // boxWidget->SetPlaceFactor(1.1);
-  // boxWidget->PlaceWidget();
-  ////boxWidget->SetInsideOut(0);
-  //   //boxWidget->HandlesOff();
-  //   //boxWidget->SetInsideOut(true);
-  //   boxWidget->SetOutlineCursorWires(1);
-  //
-  // vtkProperty* pr = boxWidget->GetHandleProperty();
-  // vtkProperty* spr = boxWidget->GetSelectedHandleProperty();
-  //   pr->SetNormalScale(0.2);
-  ////pr->SetColor(1, 0, 0);
-  ////spr->SetColor(0, 0, 1);
-  //
-  // vtkNew<vtkMyCallback> callback;
-  //   callback->SetData(curVtkRenderer,curActor);
-  // boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
+ //   vtkNew<vtkTriangleFilter>filer;
+ //   filer->SetInputData(cubSource->GetOutput());
+ //   filer->Update();
 
-  //   boxWidget->On();
+ //   vtkNew<vtkPolyDataMapper>mapper;
+ //   mapper->SetInputData(filer->GetOutput());
 
-  cutActorBox->SetActor(curActor);
-  cutActorBox->On();
-}
-void MainWindow::slotBtn2(bool state) {}
-void MainWindow::slotBtn3() { cutActorBox->Off(); }
-void MainWindow::slotBtn4(bool state) {}
-void MainWindow::slotBtn5() {
+ ////   vtkNew<vtkActor>cubActor;
+ ////   cubActor->SetMapper(mapper);
+ ////   cubActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
+	////curVtkRenderer->AddActor(cubActor);
+	////curentVtkWindow->Render();
+ //   vtkPolyData*curPoly = vtkPolyData::SafeDownCast(curActor->GetMapper()->GetInput());
+ //   vtkNew<vtkPolyData>copy;
+ //   copy->DeepCopy(curPoly);
+
+ //   VtkUtillity::fixPolyData(copy);
+ //   vtkNew<vtkBooleanOperationPolyDataFilter>booleanFilter;
+ //   booleanFilter->SetInputData(0, copy);
+ //   booleanFilter->SetInputData(1, filer->GetOutput());
+	//booleanFilter->SetOperationToIntersection();
+	//booleanFilter->Update();
+
+
+
+	//vtkSmartPointer<vtkPolyData> resultPolyData = booleanFilter->GetOutput();
+	//vtkSmartPointer<vtkPolyDataMapper> resultmapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+ //   resultmapper->SetInputData(resultPolyData);
+
+	//vtkSmartPointer<vtkActor> resActor = vtkSmartPointer<vtkActor>::New();
+ //   resActor->SetMapper(resultmapper);
+ //   resActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
+ //   
+
+ //   vtkNew<vtkPolyDataMapper>copyMapper;
+ //   copyMapper->SetInputData(copy);
+ //   vtkNew<vtkActor>copyActor;
+ //   copyActor->SetMapper(copyMapper);
+ //   vtkNew<vtkRenderer>render;
+ //   //render->AddActor(copyActor);
+ //   render->AddActor(resActor);
+ //   vtkNew<vtkRenderWindow>widow;
+ //   widow->AddRenderer(render);
+ //   vtkNew<vtkRenderWindowInteractor>intor;
+ //   intor->SetRenderWindow(widow);
+
+	//curVtkRenderer->AddActor(resActor);
+	//curentVtkWindow->Render();
+
+    //widow->Render();
+    //intor->Start();
   if (!cutActorBox) {
     cutActorBox = vtkSmartPointer<CutActorBoxWidget>::New();
   }
 
-  cutActorBox->SetIneractor(qvtkInteractor);
-  cutActorBox->SetRenderer(curVtkRenderer);
+  cutActorBox->setIneractor(qvtkInteractor);
+  cutActorBox->setRenderer(curVtkRenderer);
+    cutActorBox->setActor(curActor);
+    cutActorBox->on();
+    //VtkUtillity::booleanTest();
+}
+void MainWindow::slotBtn2(bool state) {}
+void MainWindow::slotBtn3() { cutActorBox->off(); }
+void MainWindow::slotBtn4(bool state) {}
+void MainWindow::slotBtn5() {
+
 
   // cleanMeshData();
   // vtkSmartPointer<vtkPolyData> polyData = cutActorBox->GetSelectPolyData();
@@ -461,3 +505,67 @@ void MainWindow::slotBtn5() {
   // render();
 }
 void MainWindow::slotBtn6(bool state) {}
+
+void MainWindow::slotBtn7()
+{
+
+    //cutActorBox->SetActor(curActor);
+    //curentVtkWindow->Render();
+	//size = 0.01;
+	//cub->SetXLength(0.03);
+	//cub->SetXLength(0.05);
+	//cub->SetXLength(0.08);
+	//cub->Update();
+	//curentVtkWindow->Render();
+}
+
+void MainWindow::slotBtn8()
+{
+    vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter1 = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+	vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+	transform->RotateZ(45.0);
+    transformFilter1->SetInputConnection(cub->GetOutputPort());
+    transformFilter1->SetTransform(transform);
+    vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputConnection(transformFilter1->GetOutputPort());
+    vtkNew<vtkActor>actor;
+    actor->SetMapper(mapper);
+    curVtkRenderer->AddActor(actor);
+    curentVtkWindow->Render();
+}
+
+void MainWindow::slotBtn9()
+{
+	vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter1 = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+	vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+	transform->RotateZ(45.0);
+	transformFilter1->SetInputData(cub->GetOutput());
+	transformFilter1->SetTransform(transform);
+    transformFilter1->Update();
+	vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputConnection(transformFilter1->GetOutputPort());
+	vtkNew<vtkActor>actor;
+	actor->SetMapper(mapper);
+	curVtkRenderer->AddActor(actor);
+	curentVtkWindow->Render();
+}
+
+void MainWindow::slotBtn10()
+{
+
+	cub->SetXLength(0.03+size);
+	cub->SetXLength(0.05+size);
+	cub->SetXLength(0.08+size);
+    size += 0.01;
+	//cub->Update();
+    curentVtkWindow->Render();
+}
+
+void MainWindow::slotBtn11()
+{
+}
+
+void MainWindow::slotBtn12()
+{
+    loadData();
+}

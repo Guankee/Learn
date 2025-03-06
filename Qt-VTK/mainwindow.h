@@ -49,14 +49,22 @@ VTK_MODULE_INIT(vtkInteractionStyle)
 #include <vtkTextProperty.h>
 #include <vtkTexture.h>
 #include <vtkTransform.h>
+#include <vtkCubeSource.h>
+#include <vtkTriangleFilter.h>
+#include <vtkBooleanOperationPolyDataFilter.h>
+#include <vtkTransformPolyDataFilter.h>
+
 // stl
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "VtkUtillity.h"
 #include "PlanAreaInteractorStyle.h"
 #include "CutActorBoxWidget.h"
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -146,6 +154,12 @@ class MainWindow : public QMainWindow {
   void slotBtn4(bool state);
   void slotBtn5();
   void slotBtn6(bool state);
+  void slotBtn7();
+  void slotBtn8();
+  void slotBtn9();
+  void slotBtn10();
+  void slotBtn11();
+  void slotBtn12();
 
   // void slotShowNormal(bool state);
  private:
@@ -168,6 +182,10 @@ class MainWindow : public QMainWindow {
   vtkSmartPointer<vtkAxesActor> axesActor = nullptr;
   vtkSmartPointer<vtkBoxWidget> boxWidget = nullptr;
   vtkSmartPointer<CutActorBoxWidget>cutActorBox = nullptr;
+  //Êý¾ÝÁ÷
+  vtkSmartPointer<vtkCubeSource>cub = vtkSmartPointer<vtkCubeSource>::New();
+  double size = 0.01;
+
 
  private:
   Ui::MainWindow *ui;

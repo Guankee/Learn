@@ -30,37 +30,48 @@ void PlanAreaInteractorStyle::setPolyData(
     vtkSmartPointer<vtkPolyData> polyData) {
   curPolyData = polyData;
 }
+void PlanAreaInteractorStyle::setActor(vtkSmartPointer<vtkActor> actor)
+{
+    curActor = actor; 
+    vtkPolyData* poly = vtkPolyData::SafeDownCast(actor->GetMapper()->GetInput());
+    curPolyData->DeepCopy(poly);
+    vtkNew<vtkPolyDataNormals>normal;
+    normal->SetInputData(curPolyData);
+    normal->ComputeCellNormalsOn();
+    normal->ComputePointNormalsOn();
+    normal->Update();
+    curPolyataWithNor = normal->GetOutput();
+}
 void PlanAreaInteractorStyle::OnLeftButtonDown() {
   int* mousePos = GetInteractor()->GetEventPosition();
   vtkSmartPointer<vtkPointPicker> picker =
       vtkSmartPointer<vtkPointPicker>::New();
   double pickedPosition[3];
-  if (picker->Pick(mousePos[0], mousePos[1], 0, curRenderer)) {
+  if (picker->Pick(mousePos[0], mousePos[1], 0, curRenderer)) { 
     picker->GetPickPosition(pickedPosition);
     std::cout << "Picked position: " << pickedPosition[0] << ", "
               << pickedPosition[1] << ", " << pickedPosition[2] << std::endl;
-    drawSquare(pickedPosition);
-    // 创建一个球体
+
+    //double* normal = picker->GetPickNormal();
+    addSquare(pickedPosition);
     vtkSmartPointer<vtkSphereSource> sphereSource =
         vtkSmartPointer<vtkSphereSource>::New();
     sphereSource->SetCenter(pickedPosition);
-    sphereSource->SetRadius(0.0005);  // 设置球体半径
+    sphereSource->SetRadius(0.0005);  
     sphereSource->Update();
 
-    // 创建映射器
     vtkSmartPointer<vtkPolyDataMapper> mapper =
         vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(sphereSource->GetOutput());
 
-    // 创建演员
+
     vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
-    actor->GetProperty()->SetColor(1.0, 0.0, 0.0);  // 设置球体颜色为红色
+    actor->GetProperty()->SetColor(1.0, 0.0, 0.0);  
 
-    // 将球体添加到渲染器
     curRenderer->AddActor(actor);
 
-    curRenderer->GetRenderWindow()->Render();  // 刷新渲染窗口
+    curRenderer->GetRenderWindow()->Render();  
 
   } else {
     std::cout << "No actor picked at the mouse position." << std::endl;
@@ -71,55 +82,142 @@ void PlanAreaInteractorStyle::OnLeftButtonDown() {
 }
 
 void PlanAreaInteractorStyle::OnMiddleButtonDown() {
-  int* mousePos = GetInteractor()->GetEventPosition();
-  vtkSmartPointer<vtkPointPicker> picker =
-      vtkSmartPointer<vtkPointPicker>::New();
-  double pickedPosition[3];
-  std::cout << "mousePos position: " << mousePos[0] << ", " << mousePos[1]
-            << std::endl;
-  if (picker->Pick(mousePos[0], mousePos[1], 0, curRenderer)) {
-    picker->GetPickPosition(pickedPosition);
-    std::cout << "Picked position: " << pickedPosition[0] << ", "
-              << pickedPosition[1] << ", " << pickedPosition[2] << std::endl;
-    drawSquare(pickedPosition);
-    // 创建一个球体
-    vtkSmartPointer<vtkSphereSource> sphereSource =
-        vtkSmartPointer<vtkSphereSource>::New();
-    sphereSource->SetCenter(pickedPosition);
-    sphereSource->SetRadius(0.0005);  // 设置球体半径
-    sphereSource->Update();
+  //int* mousePos = GetInteractor()->GetEventPosition();
+  //vtkSmartPointer<vtkPointPicker> picker =
+  //    vtkSmartPointer<vtkPointPicker>::New();
+  //double pickedPosition[3];
+  //std::cout << "mousePos position: " << mousePos[0] << ", " << mousePos[1]
+  //          << std::endl;
+  //if (picker->Pick(mousePos[0], mousePos[1], 0, curRenderer)) {
+  //  picker->GetPickPosition(pickedPosition);
+  //  std::cout << "Picked position: " << pickedPosition[0] << ", "
+  //            << pickedPosition[1] << ", " << pickedPosition[2] << std::endl;
+  //  drawSquare(pickedPosition);
+  //  // 创建一个球体
+  //  vtkSmartPointer<vtkSphereSource> sphereSource =
+  //      vtkSmartPointer<vtkSphereSource>::New();
+  //  sphereSource->SetCenter(pickedPosition);
+  //  sphereSource->SetRadius(0.0005);  // 设置球体半径
+  //  sphereSource->Update();
 
-    // 创建映射器
-    vtkSmartPointer<vtkPolyDataMapper> mapper =
-        vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputData(sphereSource->GetOutput());
+  //  // 创建映射器
+  //  vtkSmartPointer<vtkPolyDataMapper> mapper =
+  //      vtkSmartPointer<vtkPolyDataMapper>::New();
+  //  mapper->SetInputData(sphereSource->GetOutput());
 
-    // 创建演员
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
-    actor->GetProperty()->SetColor(1.0, 0.0, 0.0);  // 设置球体颜色为红色
+  //  // 创建演员
+  //  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+  //  actor->SetMapper(mapper);
+  //  actor->GetProperty()->SetColor(1.0, 0.0, 0.0);  // 设置球体颜色为红色
 
-    // 将球体添加到渲染器
-    curRenderer->AddActor(actor);
-    curRenderer->GetRenderWindow()->Render();  // 刷新渲染窗口
+  //  // 将球体添加到渲染器
+  //  curRenderer->AddActor(actor);
+  //  curRenderer->GetRenderWindow()->Render();  // 刷新渲染窗口
 
-  } else {
-    std::cout << "No actor picked at the mouse position." << std::endl;
-  }
+  //} else {
+  //  std::cout << "No actor picked at the mouse position." << std::endl;
+  //}
   vtkInteractorStyleTrackballCamera::OnMiddleButtonDown();
 }
 
-void PlanAreaInteractorStyle::OnRightButtonDown() {
-  int* clickPos = this->GetInteractor()->GetEventPosition();
-  vtkSmartPointer<vtkPointPicker> picker =
-      vtkSmartPointer<vtkPointPicker>::New();
-  picker->Pick(clickPos[0], clickPos[1], 0, this->curRenderer);
-  double pickedPosition[3];
-  picker->GetPickPosition(pickedPosition);
-  this->highlightSquareArea(pickedPosition);
-  // vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
-}
+//void PlanAreaInteractorStyle::OnRightButtonDown() {
+//  //int* clickPos = this->GetInteractor()->GetEventPosition();
+//  //vtkSmartPointer<vtkPointPicker> picker =
+//  //    vtkSmartPointer<vtkPointPicker>::New();
+//  //picker->Pick(clickPos[0], clickPos[1], 0, this->curRenderer);
+//  //double pickedPosition[3];
+//  //picker->GetPickPosition(pickedPosition);
+//  //this->highlightSquareArea(pickedPosition);
+//   vtkInteractorStyleTrackballCamera::OnRightButtonDown();
+//}
+void PlanAreaInteractorStyle::addSquare( double worldPos[3])
+{
+	//vtkSmartPointer<vtkPolyData> output = curPolyataWithNor->GetOutput();
+	vtkSmartPointer<vtkPointData> pointData = curPolyataWithNor->GetPointData();
+	vtkSmartPointer<vtkDataArray> normalArray = pointData->GetNormals();
+	vtkIdType pointId = curPolyData->FindPoint(worldPos);
+	if (pointId != -1)
+	{
+		double normal[3];
+		normalArray->GetTuple(pointId, normal);
 
+		std::cout << "Normal at point (" << worldPos[0] << ", " << worldPos[1] << ", " << worldPos[2] << "): ("
+			<< normal[0] << ", " << normal[1] << ", " << normal[2] << ")" << std::endl;
+
+		double lineLength = 0.02; // 线的长度
+		double endPoint[3] = {
+            worldPos[0] + normal[0] * lineLength,
+            worldPos[1] + normal[1] * lineLength,
+            worldPos[2] + normal[2] * lineLength
+		};
+
+		// 创建线
+		vtkSmartPointer<vtkLineSource> lineSource = vtkSmartPointer<vtkLineSource>::New();
+		lineSource->SetPoint1(worldPos);    // 设置起始点
+		lineSource->SetPoint2(endPoint); // 设置结束点
+		lineSource->Update();
+		vtkSmartPointer<vtkPolyDataMapper> lineMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+		lineMapper->SetInputConnection(lineSource->GetOutputPort());
+		vtkSmartPointer<vtkActor> lineActor = vtkSmartPointer<vtkActor>::New();
+		lineActor->SetMapper(lineMapper);
+		lineActor->GetProperty()->SetColor(0.0, 1.0, 0.0); 
+		vtkSmartPointer<vtkPlaneSource> plane =
+			vtkSmartPointer<vtkPlaneSource>::New();
+		double size = 0.005;
+		////plane->SetCenter(worldPos);
+		plane->SetOrigin(-size, - size, 0);
+		plane->SetPoint1( size,  - size, 0);
+		plane->SetPoint2( -size, size,0);
+		//plane->SetOrigin(worldPos[0] - size, worldPos[1] - size, worldPos[2]);
+		//plane->SetPoint1(worldPos[0] + size, worldPos[1] - size, worldPos[2]);
+		//plane->SetPoint2(worldPos[0] - size, worldPos[1] + size, worldPos[2]);
+		plane->Update();
+        //double nor[3];
+        //plane->GetNormal(nor);
+        double Center[3];            
+        plane->GetCenter(Center);
+        vtkSmartPointer<vtkTransform>transform=getTransform(normal, worldPos);
+       //transform->Translate(worldPos);
+        vtkNew<vtkTransformPolyDataFilter>transFilter;
+        transFilter->SetInputConnection(plane->GetOutputPort());
+        transFilter->SetTransform(transform);
+        transFilter->Update();
+        //plane->out
+
+		vtkSmartPointer<vtkPolyDataMapper> planeMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+        planeMapper->SetInputConnection(transFilter->GetOutputPort());
+		vtkSmartPointer<vtkActor> planeActor = vtkSmartPointer<vtkActor>::New();
+        planeActor->SetMapper(planeMapper);
+        planeActor->GetProperty()->SetColor(0.0, 0.0, 1.0);
+
+        curRenderer->AddActor(lineActor);
+        curRenderer->AddActor(planeActor);
+        curRenderer->GetRenderWindow()->Render();
+	}
+	else
+	{
+		std::cout << "Point not found in the polydata!" << std::endl;
+	}
+        
+}
+vtkSmartPointer<vtkTransform> PlanAreaInteractorStyle::getTransform(double normal[3], double pos[3])
+{
+    double defNormal[3] = { 0,0,1 };
+    double rotAxis[3];
+    vtkMath::Cross(defNormal, normal, rotAxis);
+
+    double costha = vtkMath::Dot(defNormal, normal);
+    double tha =  vtkMath::DegreesFromRadians(acos(costha));
+
+	vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+
+	if (vtkMath::Norm(rotAxis) > 1e-6) 
+	{
+		transform->RotateWXYZ(tha, rotAxis); // 绕 rotAxis 旋转 tha 角度
+	}
+    transform->Translate(pos);
+	return transform;
+}
 void PlanAreaInteractorStyle::drawSquare(const double worldPos[3]) {
   // 计算综合法线
   double normal[3];
@@ -202,7 +300,7 @@ void PlanAreaInteractorStyle::drawSquare(const double worldPos[3]) {
 
   vtkSmartPointer<vtkActor> arrowActor = vtkSmartPointer<vtkActor>::New();
   arrowActor->SetMapper(arrowMapper);
-  arrowActor->GetProperty()->SetColor(1.0, 0.0, 0.0);  // 红色
+  arrowActor->GetProperty()->SetColor(1.0, 0.0, 0.0);  
 
   // 添加箭头演员到渲染器
   curRenderer->AddActor(arrowActor);
@@ -363,3 +461,5 @@ void PlanAreaInteractorStyle::projectSquareToSurface(
   projectedPolyData->SetPoints(projectedPoints);
   projectedPolyData->SetPolys(squarePolyData->GetPolys());
 }
+
+

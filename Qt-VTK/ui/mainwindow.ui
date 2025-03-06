@@ -268,7 +268,7 @@
                 <bool>true</bool>
                </property>
                <property name="text">
-                <string>Btn2</string>
+                <string>Btn2(bool)</string>
                </property>
                <property name="checkable">
                 <bool>true</bool>
@@ -288,7 +288,7 @@
              <item row="1" column="1">
               <widget class="QPushButton" name="Btn4">
                <property name="text">
-                <string>Btn4</string>
+                <string>Btn4(bool)</string>
                </property>
                <property name="checkable">
                 <bool>true</bool>
@@ -305,10 +305,52 @@
              <item row="2" column="1">
               <widget class="QPushButton" name="Btn6">
                <property name="text">
-                <string>Btn6</string>
+                <string>Btn6(bool)</string>
                </property>
                <property name="checkable">
                 <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QPushButton" name="Btn7">
+               <property name="text">
+                <string>Btn7</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QPushButton" name="Btn8">
+               <property name="text">
+                <string>Btn8</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QPushButton" name="Btn9">
+               <property name="text">
+                <string>Btn9</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QPushButton" name="Btn10">
+               <property name="text">
+                <string>Btn10</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QPushButton" name="Btn11">
+               <property name="text">
+                <string>Btn11</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QPushButton" name="Btn12">
+               <property name="text">
+                <string>Btn12</string>
                </property>
               </widget>
              </item>
