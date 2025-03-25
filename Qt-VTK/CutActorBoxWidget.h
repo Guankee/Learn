@@ -84,7 +84,8 @@ public:
 	~CutActorBoxWidget();
 protected:
 	bool isHasPolyData(vtkSmartPointer<vtkActor> actor);
-private:
+private: 
+
 	vtkSmartPointer<vtkActor>curActor = nullptr;
 	vtkSmartPointer<QVTKInteractor>curInteractor = nullptr;
 	vtkSmartPointer<vtkProperty>actorFrontProperty = nullptr;

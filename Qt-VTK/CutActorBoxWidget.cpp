@@ -73,7 +73,7 @@ CutActorBoxWidget::CutActorBoxWidget()
 	}
 
 	boxWidget->AddObserver(vtkCommand::InteractionEvent, command);
-	boxWidget->SetScalingRangeEnabled(true);
+	boxWidget->SetScalingRangeEnabled(false);
 
 	vtkProperty* pr = boxWidget->GetOutlineProperty();
 	vtkProperty* spr = boxWidget->GetSelectedOutlineProperty();

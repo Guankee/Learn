@@ -14,6 +14,7 @@
 VTK_MODULE_INIT(vtkRenderingOpenGL2)
 VTK_MODULE_INIT(vtkRenderingFreeType)
 VTK_MODULE_INIT(vtkInteractionStyle)
+
 #include <QVTKInteractor.h>
 #include <QVTKOpenGLNativeWidget.h>
 //
@@ -182,7 +183,7 @@ class MainWindow : public QMainWindow {
   vtkSmartPointer<vtkAxesActor> axesActor = nullptr;
   vtkSmartPointer<vtkBoxWidget> boxWidget = nullptr;
   vtkSmartPointer<CutActorBoxWidget>cutActorBox = nullptr;
-  //Êý¾ÝÁ÷
+  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   vtkSmartPointer<vtkCubeSource>cub = vtkSmartPointer<vtkCubeSource>::New();
   double size = 0.01;
 

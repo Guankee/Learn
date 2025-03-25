@@ -64,7 +64,7 @@ void MainWindow::initVTK() {
   qvtkInteractor->Initialize();
   // qvtkInteractor->SetPicker();
 
-  curVtkcamera->Zoom(0.6);
+  //curVtkcamera->Zoom(0.6);
 }
 void MainWindow::loadData() {
   auto mesh = std::make_shared<open3d::geometry::TriangleMesh>();
@@ -410,65 +410,70 @@ void MainWindow::slotEdgeOn(bool state) {
 }
 
 void MainWindow::slotBtn1() {
- //   vtkNew<vtkCubeSource>cubSource;
- //   cubSource->SetXLength(0.01);
- //   cubSource->SetYLength(0.01);
- //   cubSource->SetZLength(0.01);
- //   cubSource->SetCenter(0.638563, 0.0476707, 0.14582);
- //   //cubSource->SetCenter(0.635908,0.0306695,0.158201);
- //   cubSource->Update();
 
- //   vtkNew<vtkTriangleFilter>filer;
- //   filer->SetInputData(cubSource->GetOutput());
- //   filer->Update();
+ /* booleanFilter
+    vtkNew<vtkCubeSource>cubSource;
+    cubSource->SetXLength(0.01);
+    cubSource->SetYLength(0.01);
+    cubSource->SetZLength(0.01);
+    cubSource->SetCenter(0.638563, 0.0476707, 0.14582);
+    //cubSource->SetCenter(0.635908,0.0306695,0.158201);
+    cubSource->Update();
 
- //   vtkNew<vtkPolyDataMapper>mapper;
- //   mapper->SetInputData(filer->GetOutput());
+    vtkNew<vtkTriangleFilter>filer;
+    filer->SetInputData(cubSource->GetOutput());
+    filer->Update();
 
- ////   vtkNew<vtkActor>cubActor;
- ////   cubActor->SetMapper(mapper);
- ////   cubActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
-	////curVtkRenderer->AddActor(cubActor);
-	////curentVtkWindow->Render();
- //   vtkPolyData*curPoly = vtkPolyData::SafeDownCast(curActor->GetMapper()->GetInput());
- //   vtkNew<vtkPolyData>copy;
- //   copy->DeepCopy(curPoly);
+    vtkNew<vtkPolyDataMapper>mapper;
+    mapper->SetInputData(filer->GetOutput());
 
- //   VtkUtillity::fixPolyData(copy);
- //   vtkNew<vtkBooleanOperationPolyDataFilter>booleanFilter;
- //   booleanFilter->SetInputData(0, copy);
- //   booleanFilter->SetInputData(1, filer->GetOutput());
-	//booleanFilter->SetOperationToIntersection();
-	//booleanFilter->Update();
-
-
-
-	//vtkSmartPointer<vtkPolyData> resultPolyData = booleanFilter->GetOutput();
-	//vtkSmartPointer<vtkPolyDataMapper> resultmapper = vtkSmartPointer<vtkPolyDataMapper>::New();
- //   resultmapper->SetInputData(resultPolyData);
-
-	//vtkSmartPointer<vtkActor> resActor = vtkSmartPointer<vtkActor>::New();
- //   resActor->SetMapper(resultmapper);
- //   resActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
- //   
-
- //   vtkNew<vtkPolyDataMapper>copyMapper;
- //   copyMapper->SetInputData(copy);
- //   vtkNew<vtkActor>copyActor;
- //   copyActor->SetMapper(copyMapper);
- //   vtkNew<vtkRenderer>render;
- //   //render->AddActor(copyActor);
- //   render->AddActor(resActor);
- //   vtkNew<vtkRenderWindow>widow;
- //   widow->AddRenderer(render);
- //   vtkNew<vtkRenderWindowInteractor>intor;
- //   intor->SetRenderWindow(widow);
-
-	//curVtkRenderer->AddActor(resActor);
+ //   vtkNew<vtkActor>cubActor;
+ //   cubActor->SetMapper(mapper);
+ //   cubActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
+	//curVtkRenderer->AddActor(cubActor);
 	//curentVtkWindow->Render();
+    vtkPolyData*curPoly = vtkPolyData::SafeDownCast(curActor->GetMapper()->GetInput());
+    vtkNew<vtkPolyData>copy;
+    copy->DeepCopy(curPoly);
 
-    //widow->Render();
-    //intor->Start();
+    VtkUtillity::fixPolyData(copy);
+    vtkNew<vtkBooleanOperationPolyDataFilter>booleanFilter;
+    booleanFilter->SetInputData(0, copy);
+    booleanFilter->SetInputData(1, filer->GetOutput());
+	booleanFilter->SetOperationToIntersection();
+	booleanFilter->Update();
+
+
+
+	vtkSmartPointer<vtkPolyData> resultPolyData = booleanFilter->GetOutput();
+	vtkSmartPointer<vtkPolyDataMapper> resultmapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    resultmapper->SetInputData(resultPolyData);
+
+	vtkSmartPointer<vtkActor> resActor = vtkSmartPointer<vtkActor>::New();
+    resActor->SetMapper(resultmapper);
+    resActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
+    
+
+    vtkNew<vtkPolyDataMapper>copyMapper;
+    copyMapper->SetInputData(copy);
+    vtkNew<vtkActor>copyActor;
+    copyActor->SetMapper(copyMapper);
+    vtkNew<vtkRenderer>render;
+    //render->AddActor(copyActor);
+    render->AddActor(resActor);
+    vtkNew<vtkRenderWindow>widow;
+    widow->AddRenderer(render);
+    vtkNew<vtkRenderWindowInteractor>intor;
+    intor->SetRenderWindow(widow);
+
+	curVtkRenderer->AddActor(resActor);
+	curentVtkWindow->Render();
+
+    widow->Render();
+    intor->Start();
+
+*/
+
   if (!cutActorBox) {
     cutActorBox = vtkSmartPointer<CutActorBoxWidget>::New();
   }

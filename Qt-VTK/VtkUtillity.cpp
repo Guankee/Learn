@@ -1,4 +1,4 @@
-#include"VtkUtillity.h"
+﻿#include"VtkUtillity.h"
 
 void VtkUtillity::Test(){
   std::cout<<"hello test"<<std::endl;
@@ -26,7 +26,7 @@ void VtkUtillity::fixPolyData(vtkSmartPointer<vtkPolyData>polyData)
 
 void VtkUtillity::booleanTest()
 {
-	// ???????????????
+	//就是一个球和一个立方体切
 	vtkSmartPointer<vtkCubeSource> cubeSource = vtkSmartPointer<vtkCubeSource>::New();
 	cubeSource->SetXLength(5);
 	cubeSource->SetYLength(5);
@@ -37,7 +37,7 @@ void VtkUtillity::booleanTest()
 	sphereSource->SetRadius(3);
 	sphereSource->SetCenter(2, 2, 2);
 	sphereSource->Update();
-	// ??��?????????????????????
+	// ??в?????????????????????
 
 	vtkNew<vtkTriangleFilter> filter1;
 	filter1->SetInputData(cubeSource->GetOutput());
@@ -61,7 +61,7 @@ void VtkUtillity::booleanTest()
 
 	vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
 	actor->SetMapper(mapper);
-	actor->GetProperty()->SetColor(1.0, 0.0, 0.0); // ???��??
+	actor->GetProperty()->SetColor(1.0, 0.0, 0.0); // ???ú??
 
 	// ??????
 	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
