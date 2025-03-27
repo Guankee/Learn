@@ -17,6 +17,7 @@
 #include <vtkSampleFunction.h>
 #include <vtkContourFilter.h>
 #include <vtkConeSource.h>
+#include <vtkImplicitPolyDataDistance.h>
 
 #include <vtkBox.h>
 #include <numeric>
@@ -167,59 +168,9 @@ void PlanAreaInteractorStyle::addSquare( double worldPos[3])
 		lineActor->GetProperty()->SetColor(0.0, 1.0, 0.0); 
         curRenderer->AddActor(lineActor);
         curRenderer->GetRenderWindow()->Render();
-/*
 
-vtkSmartPointer<vtkPlaneSource> plane =
-			vtkSmartPointer<vtkPlaneSource>::New();
-		double size = 0.005;
-		////plane->SetCenter(worldPos);
-		plane->SetOrigin(-size, - size, 0);
-		plane->SetPoint1( size,  - size, 0);
-		plane->SetPoint2( -size, size,0);
-		//plane->SetOrigin(worldPos[0] - size, worldPos[1] - size, worldPos[2]);
-		//plane->SetPoint1(worldPos[0] + size, worldPos[1] - size, worldPos[2]);
-		//plane->SetPoint2(worldPos[0] - size, worldPos[1] + size, worldPos[2]);
-		plane->Update();
-		//double nor[3];
-		//plane->GetNormal(nor);
-		double Center[3];
-		plane->GetCenter(Center);
-		vtkSmartPointer<vtkTransform>transform=getTransform(normal, worldPos);
-	   //transform->Translate(worldPos);
-		vtkNew<vtkTransformPolyDataFilter>transFilter;
-		transFilter->SetInputConnection(plane->GetOutputPort());
-		transFilter->SetTransform(transform);
-		transFilter->Update();
-		//plane->out
-
-		vtkSmartPointer<vtkPolyDataMapper> planeMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-		planeMapper->SetInputConnection(transFilter->GetOutputPort());
-		vtkSmartPointer<vtkActor> planeActor = vtkSmartPointer<vtkActor>::New();
-		planeActor->SetMapper(planeMapper);
-		planeActor->GetProperty()->SetColor(0.0, 0.0, 1.0);
-
-*/
 		double n[3] = { normal[0], normal[1], normal[2] };
 		vtkMath::Normalize(n);
-		//// 生成局部坐标系的X和Y轴
-		//double xAxis[3], yAxis[3];
-		//vtkMath::Perpendiculars(n, xAxis, yAxis, 0.0);
-
-		//vtkNew<vtkMatrix4x4> matrix;
-		//matrix->Identity();
-		//for (int i = 0; i < 3; ++i) {
-		//	matrix->SetElement(i, 0, xAxis[i]);
-		//	matrix->SetElement(i, 1, yAxis[i]);
-		//	matrix->SetElement(i, 2, n[i]);
-		//}
-		//matrix->SetElement(0, 3, worldPos[0]);
-		//matrix->SetElement(1, 3, worldPos[1]);
-		//matrix->SetElement(2, 3, worldPos[2]);
-
-		//vtkNew<vtkTransform> transform;
-		//transform->SetMatrix(matrix);
-
-
 		vtkSmartPointer<vtkTransform>transform = getTransform(n, worldPos);
 
 		vtkNew<vtkBox> box;
@@ -227,43 +178,45 @@ vtkSmartPointer<vtkPlaneSource> plane =
 		double bounds[6] = { -halfSize, halfSize, -halfSize, halfSize, -0.01, 0.01 };
 
 		// 正确变换box的范围
-		double corners[8][3] = {
-			{bounds[0], bounds[2], bounds[4]}, {bounds[1], bounds[2], bounds[4]},
-			{bounds[0], bounds[3], bounds[4]}, {bounds[1], bounds[3], bounds[4]},
-			{bounds[0], bounds[2], bounds[5]}, {bounds[1], bounds[2], bounds[5]},
-			{bounds[0], bounds[3], bounds[5]}, {bounds[1], bounds[3], bounds[5]}
-		};
-		for (int i = 0; i < 8; i++) {
-			transform->TransformPoint(corners[i], corners[i]);
-		}
-		double newBounds[6] = {
-			corners[0][0], corners[0][0], corners[0][1], corners[0][1], corners[0][2], corners[0][2]
-		};
-		for (int i = 1; i < 8; i++) {
-			newBounds[0] = std::min(newBounds[0], corners[i][0]);
-			newBounds[1] = std::max(newBounds[1], corners[i][0]);
-			newBounds[2] = std::min(newBounds[2], corners[i][1]);
-			newBounds[3] = std::max(newBounds[3], corners[i][1]);
-			newBounds[4] = std::min(newBounds[4], corners[i][2]);
-			newBounds[5] = std::max(newBounds[5], corners[i][2]);
-		}
-		box->SetBounds(newBounds);
+		//double corners[8][3] = {
+		//	{bounds[0], bounds[2], bounds[4]}, {bounds[1], bounds[2], bounds[4]},
+		//	{bounds[0], bounds[3], bounds[4]}, {bounds[1], bounds[3], bounds[4]},
+		//	{bounds[0], bounds[2], bounds[5]}, {bounds[1], bounds[2], bounds[5]},
+		//	{bounds[0], bounds[3], bounds[5]}, {bounds[1], bounds[3], bounds[5]}
+		//};
+		//for (int i = 0; i < 8; i++) {
+		//	transform->TransformPoint(corners[i], corners[i]);
+		//}
+		//double newBounds[6] = {
+		//	corners[0][0], corners[0][0], corners[0][1], corners[0][1], corners[0][2], corners[0][2]
+		//};
+		//for (int i = 1; i < 8; i++) {
+		//	newBounds[0] = std::min(newBounds[0], corners[i][0]);
+		//	newBounds[1] = std::max(newBounds[1], corners[i][0]);
+		//	newBounds[2] = std::min(newBounds[2], corners[i][1]);
+		//	newBounds[3] = std::max(newBounds[3], corners[i][1]);
+		//	newBounds[4] = std::min(newBounds[4], corners[i][2]);
+		//	newBounds[5] = std::max(newBounds[5], corners[i][2]);
+		//}
+        vtkNew<vtkTransform>form;
+        form->Translate(worldPos);
+        box->SetTransform(form);
+		//box->SetBounds(newBounds);
 
-		vtkNew<vtkClipPolyData> clipper;
-		clipper->SetInputData(curPolyData);
-		clipper->SetClipFunction(box);
-		clipper->InsideOutOn(); // 保留立方体内部数据
-		clipper->Update();
+
 
 
 		vtkNew<vtkCubeSource> cubeSource;
 		cubeSource->SetBounds(-halfSize, halfSize, -halfSize, halfSize, -0.01, 0.01);
 		cubeSource->Update();
-		// 3. 变换到世界坐标系（可选，因为box已应用变换矩阵）
+
 		vtkNew<vtkTransformPolyDataFilter> transformFilter;
 		transformFilter->SetTransform(transform);
 		transformFilter->SetInputData(cubeSource->GetOutput());
         transformFilter->Update();
+
+		vtkNew<vtkImplicitPolyDataDistance> implicitPolyData;
+		implicitPolyData->SetInput(transformFilter->GetOutput());
 
 
 		vtkNew<vtkPolyDataMapper> boxMapper;
@@ -272,6 +225,11 @@ vtkSmartPointer<vtkPlaneSource> plane =
 		vtkNew<vtkActor> boxActor;
 		boxActor->SetMapper(boxMapper);
 
+		vtkNew<vtkClipPolyData> clipper;
+		clipper->SetInputData(curPolyData);
+		clipper->SetClipFunction(implicitPolyData);
+		clipper->InsideOutOn();
+		clipper->Update();
 
 		boxActor->GetProperty()->SetColor(0, 1, 0);      // 绿色
 		boxActor->GetProperty()->SetOpacity(0.3);        // 透明度
@@ -281,37 +239,9 @@ vtkSmartPointer<vtkPlaneSource> plane =
 		curRenderer->AddActor(boxActor);
 		curRenderer->GetRenderWindow()->Render();
 
-		vtkSmartPointer<vtkConeSource> coneSource = vtkSmartPointer<vtkConeSource>::New();
-		coneSource->SetHeight(0.02);
-		coneSource->SetRadius(0.01);
-		coneSource->SetResolution(50);
-		coneSource->SetDirection(0, 0, 1); // 初始方向向Y轴
-		coneSource->Update();
-
-
-		vtkNew<vtkTransform> form;
-		form->Translate(worldPos);
-	
-
-		vtkNew<vtkTransformPolyDataFilter> transformFilter2;
-		transformFilter2->SetTransform(transform);
-		transformFilter2->SetInputData(coneSource->GetOutput());
-		transformFilter2->Update();
-
-
-		vtkSmartPointer<vtkPolyDataMapper> coneSourceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-		coneSourceMapper->SetInputConnection(transformFilter2->GetOutputPort());
-
-		vtkSmartPointer<vtkActor> coneSourceActor = vtkSmartPointer<vtkActor>::New();
-		coneSourceActor->SetMapper(coneSourceMapper);
-		coneSourceActor->GetProperty()->SetColor(1, 0, 0);
-		//curRenderer->AddActor(coneSourceActor);
-		curRenderer->GetRenderWindow()->Render();
-
-		// 获取裁剪后的数据
 		vtkPolyData* clippedData = clipper->GetOutput();
 
-		
+	
 		if (!clippedData || clippedData->GetNumberOfCells() == 0) {
 			std::cout << "clippedData is empty!" << std::endl;
 		}
@@ -322,11 +252,9 @@ vtkSmartPointer<vtkPlaneSource> plane =
 
 		vtkNew<vtkActor> clippedActor;
 		clippedActor->SetMapper(clippedMapper);
-		clippedActor->GetProperty()->SetColor(1, 0, 0); // 设置为红色突出显示
+		clippedActor->GetProperty()->SetColor(1, 0, 0);
 
-   
         curRenderer->AddActor(clippedActor);
-        //curRenderer->AddActor(planeActor);
         curRenderer->GetRenderWindow()->Render();
 	}
 	else

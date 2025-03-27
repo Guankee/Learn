@@ -35,6 +35,7 @@ void CutActorBoxWidgetCommand::Execute(vtkObject* caller, unsigned long eventId,
 		selectActor->SetBackfaceProperty(curActor->GetBackfaceProperty());
 	}
 
+	curRenderer->ResetCameraClippingRange();
 	curRenderer->AddActor(selectActor);
 	curRenderer->GetRenderWindow()->Render();
 }
