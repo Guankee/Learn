@@ -7,7 +7,7 @@ void VtkUtillity::Test(){
 void VtkUtillity::fixPolyData(vtkSmartPointer<vtkPolyData>polyData)
 {
 	if (!polyData) {
-		return;
+ 		return;
 	}
 	std::cout << "Number of points: " << polyData->GetNumberOfPoints() << std::endl;
 	std::cout << "Number of cells: " << polyData->GetNumberOfCells() << std::endl;

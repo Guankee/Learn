@@ -18,11 +18,17 @@
 #include <vtkContourFilter.h>
 #include <vtkConeSource.h>
 #include <vtkImplicitPolyDataDistance.h>
+#include <vtkLoopSubdivisionFilter.h>
+#include <vtkExtractPolyDataGeometry.h>
+#include <vtkSmoothPolyDataFilter.h>
+#include <vtkWindowedSincPolyDataFilter.h>
+#include <vtkSTLReader.h>
 
 #include <vtkBox.h>
 #include <numeric>
 #include <vector>
 
+#include"VtkUtillity.h"
 vtkStandardNewMacro(PlanAreaInteractorStyle);
 
 void PlanAreaInteractorStyle::setRenderer(
@@ -40,17 +46,28 @@ void PlanAreaInteractorStyle::setActor(vtkSmartPointer<vtkActor> actor)
     curActor = actor; 
     vtkPolyData* poly = vtkPolyData::SafeDownCast(actor->GetMapper()->GetInput());
     curPolyData->DeepCopy(poly);
+    VtkUtillity::fixPolyData(curPolyData);
+
     vtkNew<vtkPolyDataNormals>normal;
     normal->SetInputData(curPolyData);
     normal->ComputeCellNormalsOn();
     normal->ComputePointNormalsOn();
     normal->Update();
+
+
     curPolyataWithNor = normal->GetOutput();
+    if (picker==nullptr){
+		picker =vtkSmartPointer<vtkPointPicker>::New();
+        //picker->SetTolerance(1e-5);
+    }
+    picker->InitializePickList();
+    picker->AddPickList(actor);
+    picker->PickFromListOn();
+
 }
 void PlanAreaInteractorStyle::OnLeftButtonDown() {
   int* mousePos = GetInteractor()->GetEventPosition();
-  vtkSmartPointer<vtkPointPicker> picker =
-      vtkSmartPointer<vtkPointPicker>::New();
+
   double pickedPosition[3];
   if (picker->Pick(mousePos[0], mousePos[1], 0, curRenderer)) { 
     picker->GetPickPosition(pickedPosition);
@@ -59,22 +76,22 @@ void PlanAreaInteractorStyle::OnLeftButtonDown() {
 
     //double* normal = picker->GetPickNormal();
     addSquare(pickedPosition);
-    vtkSmartPointer<vtkSphereSource> sphereSource =
-        vtkSmartPointer<vtkSphereSource>::New();
-    sphereSource->SetCenter(pickedPosition);
-    sphereSource->SetRadius(0.0005);  
-    sphereSource->Update();
+	vtkSmartPointer<vtkSphereSource> sphereSource =
+		vtkSmartPointer<vtkSphereSource>::New();
+	sphereSource->SetCenter(pickedPosition);
+	sphereSource->SetRadius(0.0005);
+	sphereSource->Update();
 
-    vtkSmartPointer<vtkPolyDataMapper> mapper =
-        vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputData(sphereSource->GetOutput());
+	vtkSmartPointer<vtkPolyDataMapper> mapper =
+		vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputData(sphereSource->GetOutput());
 
 
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
-    actor->GetProperty()->SetColor(1.0, 0.0, 0.0);  
+	vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+	actor->SetMapper(mapper);
+	actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
 
-    curRenderer->AddActor(actor);
+	curRenderer->AddActor(actor);
 
     curRenderer->GetRenderWindow()->Render();  
 
@@ -175,49 +192,40 @@ void PlanAreaInteractorStyle::addSquare( double worldPos[3])
 
 		vtkNew<vtkBox> box;
 		double halfSize = 0.005;
-		double bounds[6] = { -halfSize, halfSize, -halfSize, halfSize, -0.01, 0.01 };
+		double bounds[6] = { -halfSize, halfSize, -halfSize, halfSize, -0.001, 0.001 };
 
-		// 正确变换box的范围
-		//double corners[8][3] = {
-		//	{bounds[0], bounds[2], bounds[4]}, {bounds[1], bounds[2], bounds[4]},
-		//	{bounds[0], bounds[3], bounds[4]}, {bounds[1], bounds[3], bounds[4]},
-		//	{bounds[0], bounds[2], bounds[5]}, {bounds[1], bounds[2], bounds[5]},
-		//	{bounds[0], bounds[3], bounds[5]}, {bounds[1], bounds[3], bounds[5]}
-		//};
-		//for (int i = 0; i < 8; i++) {
-		//	transform->TransformPoint(corners[i], corners[i]);
-		//}
-		//double newBounds[6] = {
-		//	corners[0][0], corners[0][0], corners[0][1], corners[0][1], corners[0][2], corners[0][2]
-		//};
-		//for (int i = 1; i < 8; i++) {
-		//	newBounds[0] = std::min(newBounds[0], corners[i][0]);
-		//	newBounds[1] = std::max(newBounds[1], corners[i][0]);
-		//	newBounds[2] = std::min(newBounds[2], corners[i][1]);
-		//	newBounds[3] = std::max(newBounds[3], corners[i][1]);
-		//	newBounds[4] = std::min(newBounds[4], corners[i][2]);
-		//	newBounds[5] = std::max(newBounds[5], corners[i][2]);
-		//}
         vtkNew<vtkTransform>form;
         form->Translate(worldPos);
         box->SetTransform(form);
-		//box->SetBounds(newBounds);
-
-
-
 
 		vtkNew<vtkCubeSource> cubeSource;
-		cubeSource->SetBounds(-halfSize, halfSize, -halfSize, halfSize, -0.01, 0.01);
+		cubeSource->SetBounds(-halfSize, halfSize, -halfSize, halfSize, -0.005, 0.005);
 		cubeSource->Update();
+
+
+
+		vtkNew<vtkSTLReader> stlReader;
+		stlReader->SetFileName("C:\\Users\\A015240\\Desktop\\1\\1.stl");
+		stlReader->Update();  // 读取 STL 文件
+
+
 
 		vtkNew<vtkTransformPolyDataFilter> transformFilter;
 		transformFilter->SetTransform(transform);
-		transformFilter->SetInputData(cubeSource->GetOutput());
+		transformFilter->SetInputData(stlReader->GetOutput());
         transformFilter->Update();
+
+
+		//vtkNew<vtkPolyDataNormals> normals;
+		//normals->SetInputData(transformFilter->GetOutput());
+		//normals->ConsistencyOn();
+		//normals->AutoOrientNormalsOn();
+		//normals->SplittingOff();  // 防止边缘破裂
+		//normals->Update();
+		//implicitPolyData->SetInput();
 
 		vtkNew<vtkImplicitPolyDataDistance> implicitPolyData;
 		implicitPolyData->SetInput(transformFilter->GetOutput());
-
 
 		vtkNew<vtkPolyDataMapper> boxMapper;
 		boxMapper->SetInputConnection(transformFilter->GetOutputPort());
@@ -225,16 +233,33 @@ void PlanAreaInteractorStyle::addSquare( double worldPos[3])
 		vtkNew<vtkActor> boxActor;
 		boxActor->SetMapper(boxMapper);
 
+
+		vtkNew<vtkLoopSubdivisionFilter> subdiv;
+		subdiv->SetInputData(curPolyData);
+		subdiv->SetNumberOfSubdivisions(1);  // 可尝试 1~3
+		subdiv->Update();
+  
 		vtkNew<vtkClipPolyData> clipper;
 		clipper->SetInputData(curPolyData);
 		clipper->SetClipFunction(implicitPolyData);
 		clipper->InsideOutOn();
 		clipper->Update();
 
-		boxActor->GetProperty()->SetColor(0, 1, 0);      // 绿色
-		boxActor->GetProperty()->SetOpacity(0.3);        // 透明度
+ 
+		//vtkNew<vtkExtractPolyDataGeometry> extractor;
+		//extractor->SetInputData(curPolyData);
+		//extractor->SetImplicitFunction(implicitPolyData);
+		//extractor->ExtractInsideOn();           // 提取在 cube 内的
+		//extractor->Update();
+		//vtkPolyData* result = extractor->GetOutput();
+		//if (!result || result->GetNumberOfCells() == 0) {
+		//	std::cout << "result is empty!" << std::endl;
+		//}
+
 		boxActor->GetProperty()->SetLineWidth(2.0);      // 线框模式下边框宽度
-		//boxActor->GetProperty()->SetRepresentationToWireframe(); // 线框模式
+        boxActor->GetProperty()->SetColor(0, 1, 0);
+        boxActor->GetProperty()->SetOpacity(0.3);
+		//boxActor->GetProperty()->SetRepresentationToWireframe(); // 线框模式;
 
 		curRenderer->AddActor(boxActor);
 		curRenderer->GetRenderWindow()->Render();
@@ -249,13 +274,29 @@ void PlanAreaInteractorStyle::addSquare( double worldPos[3])
 		// 创建并显示裁剪后的Actor
 		vtkNew<vtkPolyDataMapper> clippedMapper;
 		clippedMapper->SetInputData(clippedData);
-
+        vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
+        vtkPolyDataMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(1.1, 1.5);
+		//clippedMapper->SetResolveCoincidentTopologyToPolygonOffset();
+		//clippedMapper->SetResolveCoincidentTopologyPolygonOffsetParameters(1.1, 10); // 增大 units
 		vtkNew<vtkActor> clippedActor;
 		clippedActor->SetMapper(clippedMapper);
 		clippedActor->GetProperty()->SetColor(1, 0, 0);
+        //clippedActor->GetProperty()->SetRenderOrder(1);
+		/*       clippedActor->GetProperty()->EdgeVisibilityOn(); 
+			   clippedActor->GetProperty()->SetEdgeColor(0, 0, 0);
+			   clippedActor->GetProperty()->SetLineWidth(1.1);*/
+		curRenderer->AddActor(clippedActor);
+		curRenderer->GetRenderWindow()->Render();
 
-        curRenderer->AddActor(clippedActor);
-        curRenderer->GetRenderWindow()->Render();
+        vtkNew<vtkRenderer>clipperRender;
+        vtkNew<vtkRenderWindow>clipperWider;
+        vtkNew<vtkRenderWindowInteractor>intor;
+        clipperRender->AddActor(clippedActor);
+        /*clipperWider->render*/
+        clipperWider->AddRenderer(clipperRender);
+        clipperWider->SetInteractor(intor);
+        intor->Start();
+
 	}
 	else
 	{
@@ -266,7 +307,7 @@ void PlanAreaInteractorStyle::addSquare( double worldPos[3])
 
 vtkSmartPointer<vtkTransform> PlanAreaInteractorStyle::getTransform(double normal[3], double pos[3])
 {
-    double defNormal[3] = { 0,0,1 };
+    double defNormal[3] = { 0,0,-1 };
     double rotAxis[3];
 
 
@@ -276,11 +317,21 @@ vtkSmartPointer<vtkTransform> PlanAreaInteractorStyle::getTransform(double norma
     double tha =  vtkMath::DegreesFromRadians(acos(costha));
 
 	vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-	transform->Translate(pos);
+
+    //transform->RotateZ(60);
+    //transform-> ();
+
+    transform->Translate(pos);
+
 	if (vtkMath::Norm(rotAxis) > 1e-6) 
 	{
 		transform->RotateWXYZ(tha, rotAxis); // 绕 rotAxis 旋转 tha 角度
 	}
+
+   
+
+    //transform->RotateWXYZ(60, normal);
+    //transform->RotateZ(0);
 
 	return transform;
 }

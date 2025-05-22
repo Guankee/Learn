@@ -16,7 +16,8 @@
 #include <vtkDataArray.h>
 #include <vtkTransform.h>
 #include <vtkLineSource.h>
-#include<vtkTransformPolyDataFilter.h>
+#include <vtkTransformPolyDataFilter.h>
+#include <vtkPointPicker.h>
 #include <queue>
 #include <unordered_set>
 #include <vector>
@@ -39,6 +40,7 @@ class PlanAreaInteractorStyle : public vtkInteractorStyleTrackballCamera {
   vtkSmartPointer<vtkPolyData> curPolyataWithNor = nullptr;
   vtkSmartPointer<vtkActor> curSquareActor = nullptr;
   vtkSmartPointer<vtkActor> curActor=nullptr;
+  vtkSmartPointer<vtkPointPicker> picker = nullptr;
   void drawSquare(const double worldPos[3]);
   void highlightSquareArea(const double worldPos[3]);
   void computeAverageNormal(const double worldPos[3], int range,
